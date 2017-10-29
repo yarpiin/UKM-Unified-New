@@ -1,0 +1,9 @@
+UKM=/data/UKM;
+BB=$UKM/busybox;
+
+case $1 in
+	donate)
+		am start -a android.intent.action.VIEW -d https://www.paypal.me/yarpiin;
+		
+	;;
+esac;

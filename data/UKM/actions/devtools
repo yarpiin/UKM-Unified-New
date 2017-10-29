@@ -1,0 +1,83 @@
+UKM=/data/UKM;
+BB=$UKM/busybox;
+DEVICE=`sh $UKM/device/.device.sh`;
+
+TIMESTAMP=`date +%Y-%m-%d.%H.%M.%S`;
+LOGS=/sdcard/logs;
+
+case $1 in
+	bootloader)	
+		$BB echo `sh $DEVICE ToggleBootloader`;
+	;;
+	tamper)	
+		$BB echo `sh $DEVICE ToggleTamper`;
+	;;
+	selinux)	
+		if [[ ! -z $2 ]]; then
+			if [ $2 = "Enforcing" ]; then
+				setenforce 1;
+			elif [ $2 = "Permissive" ]; then
+				setenforce 0;
+			fi;
+		fi;
+
+		$BB echo `getenforce`;
+		#/sys/fs/selinux/enforce
+	;;
+	optimizedb)
+		for i in `$BB find /data -iname "*.db"`; do 
+			$UKM/sqlite3 $i 'VACUUM;' 2> /dev/null;
+			$UKM/sqlite3 $i 'REINDEX;' 2> /dev/null;
+		done;
+
+		for i in `$BB find /sdcard -iname "*.db"`; do
+			$UKM/sqlite3 $i 'VACUUM;' 2> /dev/null;
+			$UKM/sqlite3 $i 'REINDEX;' 2> /dev/null;
+		done;
+		
+		$BB echo "Databases have been optimized.";
+	;;
+	logcat)
+		saved="$LOGS/logcat-$TIMESTAMP.txt";
+		[ ! -d "$LOGS" ] && $BB mkdir -p "$LOGS";
+		$BB chmod 755 $LOGS;
+		
+		logcat -d > $saved;
+	;;
+	dmesg)
+		saved="$LOGS/dmesg-$TIMESTAMP.txt";
+		[ ! -d "$LOGS" ] && $BB mkdir -p "$LOGS";
+		$BB chmod 755 $LOGS;
+		
+		$BB dmesg > $saved;
+	;;
+	kmsg)
+		kmsg=/proc/last_kmsg;
+		if [ -f $kmsg ]; then
+			saved="$LOGS/last_kmsg-$TIMESTAMP.txt";
+			[ ! -d "$LOGS" ] && $BB mkdir -p "$LOGS";
+			$BB chmod 755 $LOGS;
+			
+			$BB cp -f $kmsg $saved;
+		else
+			$BB echo "$kmsg not found.";
+		fi;
+	;;
+	reboot)
+		$BB sleep 1;
+		reboot $2;
+	;;
+	cleardata)
+		am force-stop com.af.synapse 2> /dev/null;
+		$BB sleep 1;
+		$BB rm -R /data/data/com.af.synapse/databases;
+		$BB sleep 1;
+		am start -a android.intent.action.MAIN -n com.af.synapse/.MainActivity 2> /dev/null;
+	;;
+esac;
+
+case $1 in
+	logcat|dmesg|kmsg)
+		$BB echo "Logfile saved to $saved";
+	;;
+esac;

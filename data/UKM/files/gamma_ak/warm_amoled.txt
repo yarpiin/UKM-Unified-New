@@ -1,0 +1,7 @@
+gamma /sys/devices/platform/kcal_ctrl.0/kcal=253 246 243
+gamma /sys/devices/platform/kcal_ctrl.0/kcal_cont=258
+gamma /sys/devices/platform/kcal_ctrl.0/kcal_hue=0
+gamma /sys/devices/platform/kcal_ctrl.0/kcal_invert=0
+gamma /sys/devices/platform/kcal_ctrl.0/kcal_min=35
+gamma /sys/devices/platform/kcal_ctrl.0/kcal_sat=275
+gamma /sys/devices/platform/kcal_ctrl.0/kcal_val=251

@@ -1,0 +1,86 @@
+#!/sbin/sh
+# AnyKernel2 Backend
+# osm0sis @ xda-developers
+
+OUTFD=/proc/self/fd/$2;
+ZIP="$3";
+DIR=`dirname "$ZIP"`;
+
+ui_print() {
+  until [ ! "$1" ]; do
+    echo -e "ui_print $1\nui_print" > $OUTFD;
+    shift;
+  done;
+}
+show_progress() { echo "progress $1 $2" > $OUTFD; }
+set_perm_recursive() {
+  dirs=$(echo $* | awk '{ print substr($0, index($0,$5)) }');
+  for i in $dirs; do
+    chown -R $1.$2 $i; chown -R $1:$2 $i;
+    find "$i" -type d -exec chmod $3 {} +;
+    find "$i" -type f -exec chmod $4 {} +;
+  done;
+}
+file_getprop() { grep "^$2" "$1" | cut -d= -f2; }
+getprop() { test -e /sbin/getprop && /sbin/getprop $1 || file_getprop /default.prop $1; }
+abort() { ui_print "$*"; exit 1; }
+
+show_progress 1.34 4;
+ui_print " ";
+mkdir -p /tmp/synapse;
+cd /tmp/synapse;
+unzip -o "$ZIP";
+set_perm_recursive 0 0 0777 0777 /tmp/synapse;
+
+
+ui_print "***********************************************";
+ui_print "*               Welcome to the                *";
+ui_print "*          Universal Kernel Manager           *";
+ui_print "*             Created by apb_axel             *";
+ui_print "*             Modified by yarpiin             *";
+ui_print "***********************************************";
+ui_print "";
+ui_print "";
+
+
+/sbin/busybox mount /system;
+
+ui_print "";
+ui_print "Creating init.d...";
+mount -o remount,rw /system;
+mkdir /system/etc/init.d;
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d;
+mount -o remount,ro /system;
+ui_print " ";
+
+ui_print "";
+ui_print "Installing ukm...";
+mount -o remount,rw /system;
+rm -rf /data/UKM/*;
+rm -rf /system/etc/init.d/UKM;
+rm -rf /system/xbin/uci;
+rm -rf /system/addon.d/UKM.sh;
+cp -fvr /tmp/synapse/data/* /data;
+cp -f /tmp/synapse/data/UKM/uci /system/xbin/uci;
+cp -f /tmp/synapse/data/UKM/busybox /system/xbin/busybox;
+cp -f /tmp/synapse/data/UKM/UKM /system/etc/init.d/UKM;
+set_perm_recursive 0 0 0755 0755 /data/UKM;
+set_perm_recursive 0 0 0755 0755 /system/xbin/uci;
+set_perm_recursive 0 0 0755 0755 /system/xbin/busybox;
+set_perm_recursive 0 0 0755 0755 /system/etc/init.d/UKM;
+mount -o remount,ro /system;
+ui_print " ";
+
+ui_print "";
+ui_print "Installing Synapse...";
+mount -o remount,rw /system;
+mkdir /system/app/Synapse;
+set_perm_recursive 0 0 0755 0755 /system/app/Synapse;
+cp -f /tmp/synapse/system/app/Synapse/Synapse.apk /system/app/Synapse/Synapse.apk;
+set_perm_recursive 0 0 0755 0644 /system/app;
+ui_print " ";
+
+ui_print " ";
+ui_print "Installing done...";
+ui_print " ";
+umount /system;

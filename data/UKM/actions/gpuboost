@@ -1,0 +1,14 @@
+UKM=/data/UKM;
+BB=$UKM/busybox;
+DEVICE=`sh $UKM/device/.device.sh`;
+
+case $1 in
+	enable)	
+		$BB echo 0 > /sys/devices/soc/b00000.qcom,kgsl-3d0/devfreq/b00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/min_pwrlevel;
+		$BB echo "  GPU Boost enabled ...  ";
+	;;
+	disable)	
+		$BB echo 6 > /sys/devices/soc/b00000.qcom,kgsl-3d0/devfreq/b00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/min_pwrlevel;
+		$BB echo "  GPU Boost disabled ...  ";
+	;;
+esac;

@@ -1,0 +1,64 @@
+#!/system/bin/sh
+
+UKM=/data/UKM;
+BB=$UKM/busybox;
+DEVICE=`sh $UKM/device/.device.sh`;
+
+UCI_CONFIG=$UKM/config.json;
+UCI_ACTION=$UKM/actions/;
+UCI_DEVICE=$UKM/device/;
+UCI_FILES=$UKM/files/;
+DEBUG=$UKM/debug;
+SYNAPSE_SD_DIR=/sdcard/Synapse;
+
+if [ ! -f $UCI_CONFIG ]; then
+	$BB mount -t rootfs -o rw,remount rootfs;
+	$BB chmod -R 755 $UCI_ACTION $UCI_DEVICE $UCI_FILES;
+
+	[ ! -d "$SYNAPSE_SD_DIR/UKM" ] && $BB mkdir -p "$SYNAPSE_SD_DIR/UKM";
+	KERNEL_CURR=`$BB cat /proc/version 2> /dev/null`;
+	
+	if [ ! -f "$SYNAPSE_SD_DIR/UKM/last_kernel" ]; then
+		$BB rm -R /data/data/com.af.synapse/databases;
+		$BB echo "$KERNEL_CURR" > $SYNAPSE_SD_DIR/UKM/last_kernel;
+	else
+		KERNEL_LAST=`$BB cat $SYNAPSE_SD_DIR/UKM/last_kernel 2> /dev/null`;
+		
+		if [ "$KERNEL_CURR" != "$KERNEL_LAST" ]; then
+			$BB rm -R /data/data/com.af.synapse/databases;
+			$BB echo "$KERNEL_CURR" > $SYNAPSE_SD_DIR/UKM/last_kernel;
+		fi
+	fi
+	
+	if [ ! -f $DEBUG/pvs_bin ]; then
+		PVS=`$BB dmesg | $BB grep "\`sh $DEVICE DebugPVS\`"`;
+		$BB echo ${PVS##*:} > $DEBUG/pvs_bin;
+	fi
+	
+	if [ ! -f $DEBUG/speed_bin ]; then
+		SPEED=`$BB dmesg | $BB grep "\`sh $DEVICE DebugSPEED\`"`;
+		$BB echo ${SPEED##*:} > $DEBUG/speed_bin;
+	fi
+	
+	if [ ! -f $DEBUG/last_kmsg ]; then
+		LAST_KMSG=`$BB tail -n 1 /proc/last_kmsg 2> /dev/null`;
+		$BB echo $LAST_KMSG > $DEBUG/last_kmsg;
+	fi
+	
+	source $UKM/config.json.generate > $UCI_CONFIG;
+	
+	$BB mount -t rootfs -o ro,remount rootfs;
+fi;
+
+case "${1}" in
+  config)
+		$BB cat $UCI_CONFIG;;
+  configpath)
+		$BB echo $UCI_CONFIG;;
+  actionpath)
+		$BB echo $UCI_ACTION;;
+  reset)
+		$BB mount -t rootfs -o rw,remount rootfs;
+		$BB rm -f $UCI_CONFIG;
+		$BB mount -t rootfs -o ro,remount rootfs;;
+esac;

@@ -1,0 +1,22 @@
+UKM=/data/UKM;
+BB=$UKM/busybox;
+DEVICE=`sh $UKM/device/.device.sh`;
+
+
+bool() {
+  [ `$BB cat $1` == "Y" ] && $BB echo "1";
+  [ `$BB cat $1` == "N" ] && $BB echo "0";
+}
+
+cat << CTAG
+{
+    sections: [
+		`if [ -n "$DEVICE" ]; then
+			. $UKM/config.json.generate.cpu
+			$BB echo ','
+		else
+			. $UKM/config.json.generate.error
+		fi`
+    ]
+}
+CTAG

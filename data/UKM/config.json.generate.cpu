@@ -1,0 +1,146 @@
+cat << CTAG
+{
+	name:CPU 1,
+		elements:[
+			{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live CPU"
+					}},
+			{ SSpacer:{
+						height: 1
+				    }},
+			{ SPane:{
+				title:"Live Cpu Frequency:"
+			}},
+			{ SSpacer:{
+						height: 1
+				    }},
+				{ SLiveLabel:{
+					refresh:800,
+					style:italic,
+					action:"live CPUFrequency"
+				}},
+			{ SSpacer:{
+						height: 1
+				    }},
+			{ STitleBar:{
+				title:"CPU Frequency Scaling"
+			}},
+				`if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies" ]; then
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
+					$BB echo '{ SSeekBar:{
+						title:"CPU Min Scaling Frequency",
+						description:"Set the minimum frequency the CPU scales down to.",
+						default:'\`sh $DEVICE DefaultCPUMinFrequency\`',
+						action:"cpuset '\`sh $DEVICE DirCPUMinFrequency\`'",
+						values:{'
+							sh $DEVICE CPUFrequencyList
+						$BB echo }'
+					}},'
+					$BB echo '{ SSeekBar:{
+						title:"CPU Max Scaling Frequency",
+						description:"Set the maximum frequency the CPU scales up to.",
+						default:'\`sh $DEVICE DefaultCPUMaxFrequency)\`',
+						action:"cpuset '\`sh $DEVICE DirCPUMaxFrequency\`'",
+						values:{'
+							sh $DEVICE CPU0FrequencyList
+						$BB echo }'
+					}},'
+				fi`
+				`if [ -d "/sys/module/clock_cpu_8996" ]; then
+				$BB echo '{ SPane:{
+					title:"Core Control"
+				}},'
+                                    if [ -d "/sys/module/clock_cpu_8996" ]; then
+                                            CPU0=\`$BB cat /sys/devices/system/cpu/cpu0/online\`
+                                            $BB echo '{ SCheckBox:{
+                                                    label:"CPU0 Enabled",
+                                                    description:"Allow to disable CPU0.",
+                                                    default:'$CPU0',
+                                                    action:"generic /sys/devices/system/cpu/cpu0/online"
+                                    }},'
+                                    fi
+                                    if [ -d "/sys/module/clock_cpu_8996" ]; then
+                                            CPU1=\`$BB cat /sys/devices/system/cpu/cpu1/online\`
+                                            $BB echo '{ SCheckBox:{
+                                                    label:"CPU1 Enabled",
+                                                    description:"Allow to disable CPU1.",
+                                                    default:'$CPU1',
+                                                    action:"generic /sys/devices/system/cpu/cpu1/online"
+                                    }},'
+                                    fi
+                                fi`
+				{ SSpacer:{
+						height: 1
+				}},
+			{ SPane:{
+				title:"CPU Governor Tunables",
+			}},
+				`if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies" ]; then
+					$BB echo '{ SSpacer:{
+						height: 2
+					}},
+					{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live CPU"
+					}},
+					{ SSpacer:{
+						height: 1
+					}},
+					{ SOptionList:{
+						default:'\`sh $DEVICE DefaultCPUGovernor\`',
+						action:"cpuset '\`sh $DEVICE DirCPUGovernor\`'",
+						values:['
+							sh $DEVICE CPUGovernorList
+						$BB echo '],
+						notify:[
+							{
+								on:APPLY,
+								do:[ REFRESH, CANCEL ],
+								to:"'\`sh $DEVICE DirCPU1GovernorTree\`'"
+							},
+							{
+								on:REFRESH,
+								do:REFRESH,
+								to:"'\`sh $DEVICE DirCPU1GovernorTree\`'"
+							}
+						]
+					}},'
+				fi`
+				{ SSpacer:{
+					height: 2
+				}},
+				{ STreeDescriptor:{
+					path:"`sh $DEVICE DirCPU1GovernorTree`",
+					generic: {
+						directory: {
+							STreeDescriptor:{
+								generic: {
+									directory: {},
+									element: {
+										SGeneric: { title:"@BASENAME" }
+									}
+								},
+								exclude: [ 
+									"boost_duration", "boostpulse", "cpu_utilization", "multi_phase_freq_tbl", "profile",
+									"up_threshold_h", "up_threshold_l", "version_profiles", "sampling_rate_current", "freq_limit",
+									"music_state", "inputboost_punch_cycles", "inputboost_punch_freq", "inputboost_punch_on_epenmove",
+									"inputboost_punch_on_fingerdown", "inputboost_punch_on_fingermove", "auto_adjust_freq_thresholds",
+									"version", "early_demand", "fast_scaling_up", "fast_scaling_down", "fast_scaling_sleep_up", "fast_scaling_sleep_down"
+									"scaling_up_block_freq", "scaling_block_freq", "inputboost_typingbooster_cores", "music_max_freq", "music_min_freq"
+								]
+							},
+						}
+					},
+					exclude: [ "all_cpus", "kset", "overall_stats", "stats", "vdd_table" ]
+				}},
+				{ SSpacer:{
+						height: 1
+				}},
+		]
+}
+CTAG

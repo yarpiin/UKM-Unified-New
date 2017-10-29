@@ -1,0 +1,110 @@
+UKM=/data/UKM;
+BB=$UKM/busybox;
+
+SPEAKER=/sys/bus/i2c/devices/0-0058;
+
+LG_Stock() {
+COMP_RATE=0;
+FIXED_GAIN=12;
+ATK_TIME=5;
+REL_TIME=11;
+HOLD_TIME=0;
+OUT_LIM=0;
+OUTPUT_LIMIT_LEVEL=26;
+AGC_MAX_GAIN=12;
+NOISE_GATE_THRESHOLD=1;
+}
+
+Max_Loudness() {
+COMP_RATE=2;
+FIXED_GAIN=30;
+ATK_TIME=3;
+REL_TIME=30;
+HOLD_TIME=0;
+OUT_LIM=0;
+OUTPUT_LIMIT_LEVEL=31;
+AGC_MAX_GAIN=12;
+NOISE_GATE_THRESHOLD=0;
+}
+
+Voice() {
+COMP_RATE=2;
+FIXED_GAIN=6;
+ATK_TIME=2;
+REL_TIME=11;
+HOLD_TIME=0;
+OUT_LIM=0;
+OUTPUT_LIMIT_LEVEL=28;
+AGC_MAX_GAIN=12;
+NOISE_GATE_THRESHOLD=1;
+}
+
+Quiet() {
+COMP_RATE=3;
+FIXED_GAIN=3;
+ATK_TIME=6;
+REL_TIME=24;
+HOLD_TIME=0;
+OUT_LIM=0;
+OUTPUT_LIMIT_LEVEL=16;
+AGC_MAX_GAIN=9;
+NOISE_GATE_THRESHOLD=2;
+}
+
+if [ -f $1 ]; then
+	if [[ ! -z $2 ]]; then
+		if [ "$1" == "$UKM/files/speaker_prof" ]; then
+			$BB echo $2 > $1;
+		
+			if [ $2 != "Custom" ]; then
+				$2;
+				
+				[ -f "$SPEAKER/comp_rate" ] && $BB echo $COMP_RATE > $SPEAKER/comp_rate;
+				[ -f "$SPEAKER/fixed_gain" ] && $BB echo $FIXED_GAIN > $SPEAKER/fixed_gain;
+				[ -f "$SPEAKER/ATK_time" ] && $BB echo $ATK_TIME > $SPEAKER/ATK_time;
+				[ -f "$SPEAKER/REL_time" ] && $BB echo $REL_TIME > $SPEAKER/REL_time;
+				[ -f "$SPEAKER/Hold_time" ] && $BB echo $HOLD_TIME > $SPEAKER/Hold_time;
+				[ -f "$SPEAKER/out_lim" ] && $BB echo $OUT_LIM > $SPEAKER/out_lim;
+				[ -f "$SPEAKER/Output_limit_level" ] && $BB echo $OUTPUT_LIMIT_LEVEL > $SPEAKER/Output_limit_level;
+				[ -f "$SPEAKER/AGC_Max_Gain" ] && $BB echo $AGC_MAX_GAIN > $SPEAKER/AGC_Max_Gain;
+				[ -f "$SPEAKER/Noise_Gate_Threshold" ] && $BB echo $NOISE_GATE_THRESHOLD > $SPEAKER/Noise_Gate_Threshold;
+			fi;
+			
+		elif [ "$1" == "$SPEAKER/AGC_Max_Gain" ]; then
+			V=$2;
+			V=$((V - 18));
+			
+			$BB echo $V > $1;
+		else
+			if [ "$2" -lt 0 ]; then
+				V=$2;
+				V=$((V - 256));
+				
+				$BB echo $V > $1;
+			else
+				$BB echo $2 > $1;
+			fi;
+		fi;
+	fi;
+	
+	C=`$BB cat $1`
+	
+	if [ "$1" == "$UKM/files/speaker_prof" ]; then
+		$BB echo $C;
+	elif [ "$1" == "$SPEAKER/AGC_Max_Gain" ]; then
+		C=${C##*: };
+		C=$((C + 18));
+		
+		$BB echo $C;
+	else
+		C=${C##*: };
+		
+		if [ "$C" -gt 200 ]; then
+			C=$((256 - C));
+			
+			$BB echo $C;
+		else
+			$BB echo $C;
+		fi;
+	fi;
+fi;

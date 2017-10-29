@@ -1,0 +1,12 @@
+UKM=/data/UKM;
+BB=$UKM/busybox;
+DEVICE=`sh $UKM/device/.device.sh`;
+
+case $1 in
+	`sh $DEVICE DirGPUMinPwrLevel`)
+		$BB echo `sh $DEVICE SetGPUMinPwrLevel $1 $2`;
+	;;
+	`sh $DEVICE DirGPUGovernor`)
+		$BB echo `sh $DEVICE SetGPUGovernor $1 $2`;
+	;;
+esac;
