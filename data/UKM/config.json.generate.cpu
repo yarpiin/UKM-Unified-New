@@ -43,7 +43,7 @@ cat << CTAG
 					$BB echo '{ SSeekBar:{
 						title:"CPU Max Scaling Frequency",
 						description:"Set the maximum frequency the CPU scales up to.",
-						default:'\`sh $DEVICE DefaultCPUMaxFrequency)\`',
+						default:'\`sh $DEVICE DefaultCPUMaxFrequency\`',
 						action:"cpuset '\`sh $DEVICE DirCPUMaxFrequency\`'",
 						values:{'
 							sh $DEVICE CPU0FrequencyList
