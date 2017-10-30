@@ -46,7 +46,7 @@ cat << CTAG
 						default:'\`sh $DEVICE DefaultCPUMaxFrequency\`',
 						action:"cpuset '\`sh $DEVICE DirCPUMaxFrequency\`'",
 						values:{'
-							sh $DEVICE CPU0FrequencyList
+							sh $DEVICE CPUFrequencyList
 						$BB echo }'
 					}},'
 				fi`
