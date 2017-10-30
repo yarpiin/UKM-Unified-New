@@ -1,0 +1,336 @@
+cat << CTAG
+{
+	name:CPU BOOST,
+		elements:[
+			{ SPane:{
+				title:"Info"
+			}},
+				{ SDescription:{
+					description:"CPU frequency is boosted to a higher level when the touch screen is being used."
+				}},
+				`if [ -d "/sys/module/cpu_boost/parameters" ]; then
+					$BB echo '{ SPane:{
+							title:"CPU Boost Tunables"
+						}},
+					{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live CpuBoost"
+					}},'
+					if [ -f "/sys/module/cpu_boost/parameters/cpu_boost" ]; then
+					CPUBOOST=\`$BB cat /sys/module/cpu_boost/parameters/cpu_boost\`;
+						$BB echo '{ SCheckBox:{
+							label:"Enable",
+							description:"An in kernel replacement for Qualcomms MPDecision. Developed by Cyanogenmod.",
+							default:'$CPUBOOST',
+							action:"generic /sys/module/cpu_boost/parameters/cpu_boost"
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/cpuboost_enable" ]; then
+					CPUBOOSTE=\`bool /sys/module/cpu_boost/parameters/cpuboost_enable\`;
+						$BB echo '{ SCheckBox:{
+							label:"Enable",
+							description:"Enable/Disable CPU Boost",
+							default:'$CPUBOOSTE',
+							action:"boolean /sys/module/cpu_boost/parameters/cpuboost_enable"
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/input_boost_enabled" ]; then
+					INBST=\`$BB cat /sys/module/cpu_boost/parameters/input_boost_enabled\`
+						echo '{ SCheckBox:{
+							label:"Input Boost",
+							description:"Enable/Disable Input Boost.",
+							default:'$INBST',
+							action:"generic /sys/module/cpu_boost/parameters/input_boost_enabled"
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/debug_mask" ]; then
+					DEBUG=\`$BB cat /sys/module/cpu_boost/parameters/debug_mask\`
+						echo '{ SCheckBox:{
+							label:"Debug Mask",
+							description:"Allows you to activate debug mask for CPU Boost operations.",
+							default:'$DEBUG',
+							action:"generic /sys/module/cpu_boost/parameters/debug_mask"
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/boost_ms" ]; then
+					BOOSTMS=\`$BB cat /sys/module/cpu_boost/parameters/boost_ms\`
+						$BB echo '{ SSeekBar:{
+							title:"Boost",
+							description:"Minimum interval a CPU is boosted.",
+							unit:" ms",
+							min:0,
+							max:5000,
+							step:10,
+							default:'$BOOSTMS',
+							action:"generic /sys/module/cpu_boost/parameters/boost_ms"
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/sync_threshold" ]; then
+					SYNCT=\`$BB cat /sys/module/cpu_boost/parameters/sync_threshold\`
+						$BB echo '{ SSeekBar:{
+							title:"Sync Threshold",
+							description:"When CPU loading crosses the preset threshold, the current CPU is raised to this frequency.",
+							default:'$SYNCT',
+							action:"generic /sys/module/cpu_boost/parameters/sync_threshold",
+							values:{ 0:"Disabled", '
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/input_boost_ms" ]; then
+					SYNCT=\`$BB cat /sys/module/cpu_boost/parameters/input_boost_ms\`
+						$BB echo '{ SSeekBar:{
+							title:"Input Boost",
+							description:"Minimum interval a CPU is boosted when input is detected.",
+							unit:" ms",
+							min:0,
+							max:5000,
+							step:10,
+							default:'$SYNCT',
+							action:"generic /sys/module/cpu_boost/parameters/input_boost_ms"
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/min_input_interval" ]; then
+					MBOOSTINT=\`$BB cat /sys/module/cpu_boost/parameters/min_input_interval\`
+						$BB echo '{ SSeekBar:{
+							title:"Min Input Interval",
+							description:"Minimum Input Interval between touches.",
+							unit:" ms",
+							min:100,
+							max:1500,
+							step:10,
+							default:'$MBOOSTINT',
+							action:"generic /sys/module/cpu_boost/parameters/min_input_interval"
+						}},'
+					fi
+					if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies" ] && [ -f "/sys/devices/system/cpu/cpu4/cpufreq/scaling_available_frequencies" ]; then
+					
+					VALUE=0; for i in \`$BB cat /sys/module/cpu_boost/parameters/input_boost_freq\`; do VALUE=$(($VALUE+1)); done;
+					
+						if [ $VALUE -eq 1 ]; then
+							IBF=\`$BB cat /sys/module/cpu_boost/parameters/input_boost_freq\`
+							
+							$BB echo '{ SSeekBar:{
+								title:"Input Boost Frequency",
+								description:"This will boost your minimum CPU speed to the selected frequency when you touch the screen or press a button.",
+								default:'$IBF',
+								action:"generic /sys/module/cpu_boost/parameters/input_boost_freq",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},'
+						elif [ $VALUE -eq 4 ]; then
+							$BB echo '{ SSeekBar:{
+								title:"CPU0 Input Boost Frequency",
+								action:"cpuboostibf 0",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU1 Input Boost Frequency",
+								action:"cpuboostibf 1",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU2 Input Boost Frequency",
+								action:"cpuboostibf 2",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU3 Input Boost Frequency",
+								action:"cpuboostibf 3",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU4 Input Boost Frequency",
+								action:"cpuboostibf 4",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPU2FrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU5 Input Boost Frequency",
+								action:"cpuboostibf 5",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPU2FrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU6 Input Boost Frequency",
+								action:"cpuboostibf 6",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPU2FrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU7 Input Boost Frequency",
+								action:"cpuboostibf 7",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPU2FrequencyList
+								$BB echo '}
+							}},'
+						fi;
+					fi;
+					if [ -f "/sys/module/cpu_boost/parameters/input_boost_freq" ] && [ -d "/sys/module/clock_cpu_8996" ]; then
+					
+					VALUE=0; for i in \`$BB cat /sys/module/cpu_boost/parameters/input_boost_freq\`; do VALUE=$(($VALUE+1)); done;
+					
+						if [ $VALUE -eq 1 ]; then
+							IBF=\`$BB cat /sys/module/cpu_boost/parameters/input_boost_freq\`
+							
+							$BB echo '{ SSeekBar:{
+								title:"Input Boost Frequency",
+								description:"This will boost your minimum CPU speed to the selected frequency when you touch the screen or press a button.",
+								default:'$IBF',
+								action:"generic /sys/module/cpu_boost/parameters/input_boost_freq",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},'
+						elif [ $VALUE -eq 4 ]; then
+							$BB echo '{ SSeekBar:{
+								title:"CPU0 Input Boost Frequency",
+								action:"cpuboostibf 0",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU1 Input Boost Frequency",
+								action:"cpuboostibf 1",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPUFrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU2 Input Boost Frequency",
+								action:"cpuboostibf 2",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPU1FrequencyList
+								$BB echo '}
+							}},
+							{ SSeekBar:{
+								title:"CPU3 Input Boost Frequency",
+								action:"cpuboostibf 3",
+								values:{ 0:"Disabled", '
+									sh $DEVICE CPU1FrequencyList
+								$BB echo '}
+							}},'
+						fi;
+					fi;
+					if [ -f "/sys/module/cpu_boost/parameters/migration_load_threshold" ]; then
+					MLT=\`$BB cat /sys/module/cpu_boost/parameters/migration_load_threshold\`
+						$BB echo '{ SSeekBar:{
+							title:"Migration Load Threshold",
+							description:"The amount of load before migrate tasks to another cpu.",
+							min:0,
+							max:100,
+							step:1,
+							default:'$MLT',
+							action:"generic /sys/module/cpu_boost/parameters/migration_load_threshold"
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/load_based_syncs" ]; then
+					LBS=\`bool /sys/module/cpu_boost/parameters/load_based_syncs\`
+						$BB echo '{ SCheckBox:{
+							label:"Load Based Syncs",
+							description:"The cpu boost driver can use this load to compute a suitable frequency for the migrating task.",
+							default:'$LBS',
+							action:"boolean /sys/module/cpu_boost/parameters/load_based_syncs",
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/sched_boost_on_input" ]; then
+					SBOI=\`bool /sys/module/cpu_boost/parameters/sched_boost_on_input\`
+						$BB echo '{ SCheckBox:{
+							label:"Scheduler Boost on Input",
+							description:"Enable scheduler boost to migrate tasks to big cluster.",
+							default:'$SBOI',
+							action:"boolean /sys/module/cpu_boost/parameters/sched_boost_on_input",
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/hotplug_boost" ]; then
+					HB=\`bool /sys/module/cpu_boost/parameters/hotplug_boost\`
+						$BB echo '{ SCheckBox:{
+							label:"Hotplug Boost",
+							description:"Hotplug Boost is similar to input boost but it occurs when CPUs go online.",
+							default:'$HB',
+							action:"boolean /sys/module/cpu_boost/parameters/hotplug_boost",
+						}},'
+					fi
+					if [ -f "/sys/module/cpu_boost/parameters/wakeup_boost" ]; then
+					WB=\`bool /sys/module/cpu_boost/parameters/wakeup_boost\`
+						$BB echo '{ SCheckBox:{
+							label:"Wakeup Boost",
+							description:"Wakeup Boost is similar to input boost but it occurs when screen is turned on.",
+							default:'$WB',
+							action:"boolean /sys/module/cpu_boost/parameters/wakeup_boost",
+						}},'
+					fi
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
+					if [ -f "/sys/module/cpu_boost/parameters/sysctl_thermal_aware_scheduling" ]; then
+					STAS=\`bool /sys/module/cpu_boost/parameters/sysctl_thermal_aware_scheduling\`
+						$BB echo '{ SGeneric:{
+							title:"Thermal Aware Scheduling",
+							description:"Balancing the workloads between both the bigger and smaller cores within the SoC regardless of the thermal conditions.",
+							default:'$STAS',
+							action:"generic /sys/module/cpu_boost/parameters/sysctl_thermal_aware_scheduling",
+						}},'
+					fi
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
+				fi`
+			    	`if [ -d "/sys/kernel/cpu_input_boost" ]; then
+				    $BB echo '{ SPane:{
+					    title:"Sultanxda Input Boost"
+				    }},'
+				    if [ -f "/sys/kernel/cpu_input_boost/enabled" ]; then
+					    INB=\`$BB cat /sys/kernel/cpu_input_boost/enabled\`
+						$BB echo '{ SCheckBox:{
+							label:"Enable",
+							description:"Enable/Disable Input Boost developed by Sultanxda",
+							default:'$INB',
+							action:"generic /sys/kernel/cpu_input_boost/enabled"
+						}},'
+					fi
+				    if [ -f "/sys/kernel/cpu_input_boost/ib_duration_ms" ]; then
+					INB=\`$BB cat /sys/kernel/cpu_input_boost/ib_duration_ms\`
+						$BB echo '{ SSeekBar:{
+							title:"Input Boost Duration",
+						    	description:"Sets input boost duration in ms.",
+                            			    	unit:"ms",
+						    	min:0,
+						    	max:5000,
+						    	step:10,
+						    	default:'$INB',
+						    	action:"generic /sys/kernel/cpu_input_boost/ib_duration_ms",
+					    }},'
+					fi
+				fi`
+				`if [ -d "/sys/kernel/fp_boost" ]; then
+				    $BB echo '{ SPane:{
+					    title:"Fingerprint Boost"
+				    }},'
+				    if [ -f "/sys/kernel/fp_boost/enabled" ]; then
+					    INB=\`$BB cat /sys/kernel/fp_boost/enabled\`
+						$BB echo '{ SCheckBox:{
+							label:"Enable",
+							description:"Fingerprint Boost driver from Frap129",
+							default:'$INB',
+							action:"generic /sys/kernel/cpu_input_boost/enabled"
+						}},'
+					fi
+				fi`
+		]
+}
+CTAG
