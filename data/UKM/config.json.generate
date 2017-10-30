@@ -14,6 +14,10 @@ cat << CTAG
 		`if [ -n "$DEVICE" ]; then
 			. $UKM/config.json.generate.cpu
 			$BB echo ','
+			if [ -d "/sys/module/clock_cpu_8996" -o -f "/sys/devices/system/cpu/cpu4/cpufreq/scaling_available_frequencies" ]; then
+				. $UKM/config.json.generate.cpu2
+				$BB echo ','
+            fi
 		else
 			. $UKM/config.json.generate.error
 		fi`

@@ -1,0 +1,228 @@
+cat << CTAG
+{
+	name:CPU 2,
+		elements:[
+			{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live CPU2"
+					}},
+			{ SSpacer:{
+						height: 1
+				    }},
+			{ SPane:{
+				title:"Live Cpu Frequency:"
+			}},
+			{ SSpacer:{
+						height: 1
+				    }},
+			{ SLiveLabel:{
+						refresh:800,
+						style:italic,
+						action:"live CPU1Frequency"
+				}},
+			{ SSpacer:{
+						height: 1
+				    }},
+			{ STitleBar:{
+				title:"CPU Frequency Scaling"
+			}},
+				`if [ -f "/sys/devices/system/cpu/cpu4/cpufreq/scaling_available_frequencies" ]; then
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
+					$BB echo '{ SSeekBar:{
+						title:"CPU2 Min Scaling Frequency",
+						description:"Set the minimum frequency the CPU scales down to.",
+						default:'\`sh $DEVICE  DefaultCPU2MinFrequency\`',
+						action:"cpuset '\`sh $DEVICE DirCPU2MinFrequency\`'",
+						values:{'
+							sh $DEVICE CPU2FrequencyList
+						$BB echo }'
+					}},'
+					$BB echo '{ SSeekBar:{
+						title:"CPU2 Max Scaling Frequency",
+						description:"Set the maximum frequency the CPU scales up to.",
+						default:'\`sh $DEVICE DefaultCPU2MaxFrequency\`',
+						action:"cpuset '\`sh $DEVICE DirCPU2MaxFrequency\`'",
+						values:{'
+							sh $DEVICE CPU2FrequencyList
+						$BB echo }'
+					}},'
+				fi`
+        		`if [ -d "/sys/module/clock_cpu_8996" ]; then
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
+					$BB echo '{ SSeekBar:{
+						title:"CPU2 Min Scaling Frequency",
+						description:"Set the minimum frequency the CPU scales down to.",
+						default:'\`sh $DEVICE  DefaultCPU1MinFrequency\`',
+						action:"cpuset '\`sh $DEVICE DirCPU1MinFrequency\`'",
+						values:{'
+							sh $DEVICE CPU1FrequencyList
+						$BB echo }'
+					}},'
+					$BB echo '{ SSeekBar:{
+						title:"CPU2 Max Scaling Frequency",
+						description:"Set the maximum frequency the CPU scales up to.",
+						default:'\`sh $DEVICE DefaultCPU1MaxFrequency\`',
+						action:"cpuset '\`sh $DEVICE DirCPU1MaxFrequency\`'",
+						values:{'
+							sh $DEVICE CPU1FrequencyList
+						$BB echo }'
+					}},'
+				fi`
+				`if [ -d "/sys/module/clock_cpu_8996" ]; then
+				$BB echo '{ SPane:{
+					title:"Core Control"
+				}},'
+                    if [ -d "/sys/module/clock_cpu_8996/parameters" ]; then
+                       CPU2=\`$BB cat /sys/devices/system/cpu/cpu2/online\`
+                            $BB echo '{ SCheckBox:{
+                                label:"CPU2 Enabled",
+                                description:"Allow to disable CPU2.",
+                                default:'$CPU2',
+                                action:"generic /sys/devices/system/cpu/cpu2/online"
+                            }},'
+                    fi
+                    if [ -d "/sys/module/clock_cpu_8996/parameters" ]; then
+                       CPU3=\`$BB cat /sys/devices/system/cpu/cpu3/online\`
+                            $BB echo '{ SCheckBox:{
+                                label:"CPU3 Enabled",
+                                description:"Allow to disable CPU3.",
+                                default:'$CPU3',
+                                action:"generic /sys/devices/system/cpu/cpu3/online"
+                            }},'
+                    fi
+                fi`
+				{ SSpacer:{
+						height: 1
+				}},
+				{ SPane:{
+					title:"CPU Governor Tunables",
+				}},
+				`if [ -f "/sys/devices/system/cpu/cpu4/cpufreq/scaling_available_frequencies" ]; then
+					$BB echo '{ SSpacer:{
+						height: 2
+					}},
+					{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live CPU2"
+					}},
+					{ SSpacer:{
+						height: 1
+					}},
+					{ SOptionList:{
+						default:'\`sh $DEVICE DefaultCPU2Governor\`',
+						action:"cpuset '\`sh $DEVICE DirCPU2Governor\`'",
+						values:['
+							sh $DEVICE CPU2GovernorList
+						$BB echo '],
+						notify:[
+							{
+								on:APPLY,
+								do:[ REFRESH, CANCEL ],
+								to:"'\`sh $DEVICE  DirCPU3GovernorTree\`'"
+							},
+							{
+								on:REFRESH,
+								do:REFRESH,
+								to:"'\`sh $DEVICE  DirCPU3GovernorTree\`'"
+							}
+						]
+					}},'
+				fi`
+				{ SSpacer:{
+					height: 1
+				}},
+				{ STreeDescriptor:{
+					path:"`sh $DEVICE DirCPU3GovernorTree`",
+					generic: {
+						directory: {
+							STreeDescriptor:{
+								generic: {
+									directory: {},
+									element: {
+										SGeneric: { title:"@BASENAME" }
+									}
+								},
+								exclude: [ 
+									"boost_duration", "boostpulse", "cpu_utilization", "multi_phase_freq_tbl", "profile",
+									"up_threshold_h", "up_threshold_l", "version_profiles", "sampling_rate_current", "freq_limit",
+									"music_state", "inputboost_punch_cycles", "inputboost_punch_freq", "inputboost_punch_on_epenmove",
+									"inputboost_punch_on_fingerdown", "inputboost_punch_on_fingermove", "auto_adjust_freq_thresholds",
+									"version", "early_demand", "fast_scaling_up", "fast_scaling_down", "fast_scaling_sleep_up", "fast_scaling_sleep_down"
+									"scaling_up_block_freq", "scaling_block_freq", "inputboost_typingbooster_cores", "music_max_freq", "music_min_freq"
+								]
+							},
+						}
+					},
+					exclude: [ "all_cpus", "kset", "overall_stats", "stats", "vdd_table" ]
+				}},
+				{ SSpacer:{
+						height: 1
+				}},
+				`if [ -d "/sys/module/clock_cpu_8996" ]; then
+					$BB echo '{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live CPU2"
+					}},
+					{ SSpacer:{
+						height: 1
+					}},
+					{ SOptionList:{
+						default:'\`sh $DEVICE DefaultCPU1Governor\`',
+						action:"cpuset '\`sh $DEVICE DirCPU1Governor\`'",
+						values:['
+							sh $DEVICE CPU1GovernorList
+						$BB echo '],
+						notify:[
+							{
+								on:APPLY,
+								do:[ REFRESH, CANCEL ],
+								to:"'\`sh $DEVICE  DirCPU2GovernorTree\`'"
+							},
+							{
+								on:REFRESH,
+								do:REFRESH,
+								to:"'\`sh $DEVICE  DirCPU2GovernorTree\`'"
+							}
+						]
+					}},'
+				fi`
+				{ SSpacer:{
+					height: 2
+				}},
+				{ STreeDescriptor:{
+					path:"`sh $DEVICE DirCPU2GovernorTree`",
+					generic: {
+						directory: {
+							STreeDescriptor:{
+								generic: {
+									directory: {},
+									element: {
+										SGeneric: { title:"@BASENAME" }
+									}
+								},
+								exclude: [ 
+									"boost_duration", "boostpulse", "cpu_utilization", "multi_phase_freq_tbl", "profile",
+									"up_threshold_h", "up_threshold_l", "version_profiles", "sampling_rate_current", "freq_limit",
+									"music_state", "inputboost_punch_cycles", "inputboost_punch_freq", "inputboost_punch_on_epenmove",
+									"inputboost_punch_on_fingerdown", "inputboost_punch_on_fingermove", "auto_adjust_freq_thresholds",
+									"version", "early_demand", "fast_scaling_up", "fast_scaling_down", "fast_scaling_sleep_up", "fast_scaling_sleep_down"
+									"scaling_up_block_freq", "scaling_block_freq", "inputboost_typingbooster_cores", "music_max_freq", "music_min_freq"
+								]
+							},
+						}
+					},
+					exclude: [ "all_cpus", "kset", "overall_stats", "stats", "vdd_table" ]
+				}},
+				{ SSpacer:{
+						height: 1
+				}},
+		]
+}
+CTAG

@@ -6,6 +6,12 @@ case $1 in
 	CPU)
 		$BB echo `sh $DEVICE LiveCPU1`;
 	;;
+	CPU2)
+		$BB echo `sh $DEVICE LiveCPU2`;
+	;;
 	CPUFrequency)
 		$BB echo `sh $DEVICE LiveCPUFrequency`;
+	;;
+	CPU1Frequency)
+		$BB echo `sh $DEVICE LiveCPU1Frequency`;
 esac;
