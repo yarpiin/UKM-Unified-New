@@ -823,13 +823,7 @@ case "$1" in
 	LiveInfoCurrent)
 			$BB echo "Version: 4.0.1.4 Special Edition"
 	;;
-	LiveBrickedHotplug)
-			$BB echo "Bricked Hotplug Driver"
-	;;
-	LiveIntellidHotplug)
-			$BB echo "Intelli Hotplug Driver"
-	;;
-	LivedMsmHotplug)
+	LiveMSM)
 			$BB echo "Msm Hotplug Driver"
 	;;
 	LiveSimpleThermal)
@@ -849,5 +843,41 @@ case "$1" in
 	;;
 	LiveMsmPerformance)
 			$BB echo "MSM Performance Driver"
+	;;
+	LiveHima)
+			$BB echo "Hima Hotplug Driver"
+	;;
+	LiveLazy)
+			$BB echo "Lazyplug Hotplug Driver"
+	;;
+	LiveAsmp)
+			$BB echo "AutoSMP Hotplug Driver"
+	;;
+	LiveIntelli)
+			$BB echo "Intelliplug Hotplug Driver"
+	;;
+	LiveBricked)
+			$BB echo "Bricked Hotplug Driver"
+	;;
+	LiveAuto)
+			$BB echo "Auto Hotplug Driver"
+	;;
+	LiveDyna)
+			$BB echo "Dynamic Hotplug Driver"
+	;;
+	LiveBlu)
+			$BB echo "Blu Plug Hotplug Driver"
+	;;
+	LiveAlucard)
+			$BB echo "Alucard Hotplug Driver"
+	;;
+	LiveMako)
+			$BB echo "Mako Hotplug Driver"
+	;;
+	LiveThunder)
+			$BB echo "Thunderplug Hotplug Driver"
+	;;
+	LiveAio)
+			$BB echo "AiO Hotplug Driver"
 	;;
 esac;
