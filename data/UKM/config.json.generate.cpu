@@ -11,7 +11,7 @@ cat << CTAG
 						height: 1
 				    }},
 			{ SPane:{
-				title:"Live Cpu Frequency:"
+				title:"Live Cpu Frequency"
 			}},
 			{ SSpacer:{
 						height: 1
