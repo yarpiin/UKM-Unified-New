@@ -14,4 +14,43 @@ case $1 in
 	;;
 	CPU1Frequency)
 		$BB echo `sh $DEVICE LiveCPU1Frequency`;
+	;;
+	Hima)
+		$BB echo `sh $DEVICE LiveHima`;
+	;;
+	Lazy)
+		$BB echo `sh $DEVICE LiveLazy`;
+	;;
+	Asmp)
+		$BB echo `sh $DEVICE LiveAsmp`;
+	;;
+	Intelli)
+		$BB echo `sh $DEVICE LiveIntelli`;
+	;;
+	Bricked)
+		$BB echo `sh $DEVICE LiveBricked`;
+	;;
+	MSM)
+		$BB echo `sh $DEVICE LiveMSM`;
+	;;
+	Auto)
+		$BB echo `sh $DEVICE LiveAuto`;
+	;;
+	Dyna)
+		$BB echo `sh $DEVICE LiveDyna`;
+	;;
+	Blu)
+		$BB echo `sh $DEVICE LiveBlu`;
+	;;
+	Alucard)
+		$BB echo `sh $DEVICE LiveAlucard`;
+	;;
+	Mako)
+		$BB echo `sh $DEVICE LiveMako`;
+	;;
+	Thunder)
+		$BB echo `sh $DEVICE LiveThunder`;
+	;;
+	Aio)
+		$BB echo `sh $DEVICE LiveAio`;
 esac;
