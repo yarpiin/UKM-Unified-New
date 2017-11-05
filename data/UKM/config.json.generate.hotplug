@@ -2,13 +2,16 @@ cat << CTAG
 {
 	name:HOTPLUG,
 		elements:[
-			{ SDescription:{
+			{ SPane:{
+				title:"Info"
+			}},
+				{ SDescription:{
 					description:"Use only one hotplug driver from the following options, using more than at the same time may cause unexpected behavior."
 				}},
 			`if [ -d "/sys/kernel/hima_hotplug" ]; then
 				$BB echo '{ SPane:{
 					title:"Hima Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -19,7 +22,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/kernel/hima_hotplug/hima_hotplug_active" ]; then
 				HIMAN=\`$BB cat /sys/kernel/hima_hotplug/hima_hotplug_active\`
 					$BB echo '{ SCheckBox:{
@@ -79,7 +82,7 @@ cat << CTAG
 			`if [ -d "/sys/module/lazyplug/parameters/lazyplug_active" ]; then
 				$BB echo '{ SPane:{
 					title:"Lazyplug Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -90,7 +93,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/module/lazyplug/parameters/lazyplug_active" ]; then
 				LAZYP=\`$BB cat /sys/module/lazyplug/parameters/lazyplug_active\`;
 					$BB echo '{ SCheckBox:{
@@ -149,7 +152,7 @@ cat << CTAG
 			`if [ -d "/sys/module/autosmp/parameters/enabled" ]; then
 				$BB echo '{ SPane:{
 					title:"Auto SMP Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -160,7 +163,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/module/autosmp/parameters/enabled" ]; then
 				AUTOSMP=\`bool /sys/module/autosmp/parameters/enabled\`;
 				$BB echo '{ SCheckBox:{
@@ -905,7 +908,7 @@ cat << CTAG
 			`if [ -d ""/sys/module/intelli_plug/parameters" ] && [ ! -f "/sys/kernel/intelli_plug/full_mode_profile"" ]; then
 				$BB echo '{ SPane:{
 					title:"Intelliplug Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -916,7 +919,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/module/intelli_plug/parameters/intelli_plug_active" ]; then
 				INTELLIPLUG=\`$BB cat /sys/module/intelli_plug/parameters/intelli_plug_active\`;
 					$BB echo '{ SCheckBox:{
@@ -1205,7 +1208,7 @@ cat << CTAG
 			if [ -d "$BHC" ]; then
 				$BB echo '{ SPane:{
 					title:"Bricked Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -1216,7 +1219,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "$BHC/enabled" ]; then
 				MSMMPD=\`$BB cat $BHC/enabled\`
 					$BB echo '{ SCheckBox:{
@@ -1603,7 +1606,7 @@ cat << CTAG
 			`if [ -d "/sys/module/msm_hotplug" ]; then
 				$BB echo '{ SPane:{
 					title:"MSM Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -1614,7 +1617,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/module/msm_hotplug/enabled" ]; then
 				MSMHOT=\`$BB cat /sys/module/msm_hotplug/enabled\`
 					$BB echo '{ SCheckBox:{
@@ -1866,7 +1869,7 @@ cat << CTAG
 				$BB echo '{ SPane:{
 					title:"Auto Hotplug"
 					description:"An in kernel replacement for Qualcomms MPDecision. Developed by Thalamus.",
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -1877,7 +1880,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/module/auto_hotplug/parameters/disable_load_threshold" ]; then
 				DLT=\`$BB cat /sys/module/auto_hotplug/parameters/disable_load_threshold\`
 					$BB echo '{ SSeekBar:{
@@ -1971,7 +1974,7 @@ cat << CTAG
 			`if [ -d "/sys/module/dyn_hotplug/parameters" ]; then
 				$BB echo '{ SPane:{
 					title:"Dynamic Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -1982,7 +1985,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/module/dyn_hotplug/parameters/enabled" ]; then
 				DYNHOT=\`bool /sys/module/dyn_hotplug/parameters/enabled\`
 					$BB echo '{ SCheckBox:{
@@ -2063,7 +2066,7 @@ cat << CTAG
 			`if [ -d "/sys/module/blu_plug/parameters" ]; then
 				$BB echo '{ SPane:{
 					title:"Blu Plug Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -2074,7 +2077,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/module/blu_plug/parameters/enabled" ]; then
 				BLUHOT=\`bool /sys/module/blu_plug/parameters/enabled\`
 					$BB echo '{ SCheckBox:{
@@ -2190,7 +2193,7 @@ cat << CTAG
 			`if [ -d "/sys/kernel/alucard_hotplug" ]; then
 				$BB echo '{ SPane:{
 					title:"Alucard"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -2201,7 +2204,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/kernel/alucard_hotplug/hotplug_enable" ]; then
 				HOTENABLE=\`$BB cat /sys/kernel/alucard_hotplug/hotplug_enable\`
 					$BB echo '{ SCheckBox:{
@@ -2579,7 +2582,7 @@ cat << CTAG
 				$BB echo '{ SPane:{
 					title:"Mako Hotplug Control",
 					description:"An in kernel replacement for Qualcomms MPDecision. Developed by franciscofranco.",
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -2590,7 +2593,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "$MHC/enabled" ]; then
 				MHE=\`$BB cat $MHC/enabled\`
 					$BB echo '{ SCheckBox:{
@@ -2708,7 +2711,7 @@ cat << CTAG
 			`if [ -d "/sys/kernel/thunderplug" ]; then
 				$BB echo '{ SPane:{
 					title:"Thunderplug Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -2719,7 +2722,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/kernel/thunderplug/hotplug_style" ]; then
 				HS=\`$BB cat /sys/kernel/thunderplug/hotplug_style\`;
 					$BB echo '{ SOptionList:{
@@ -2811,7 +2814,7 @@ cat << CTAG
 			`if [ -d "/sys/kernel/AiO_HotPlug" ]; then
 				$BB echo '{ SPane:{
 					title:"AiO HotPlug Hotplug"
-				}},'
+					}},
 				{ SSpacer:{
 					height: 1
 					}},
@@ -2822,7 +2825,7 @@ cat << CTAG
 					}},
 				{ SSpacer:{
 					height: 1
-					}},
+					}},'
 				if [ -f "/sys/kernel/AiO_HotPlug/toggle" ]; then
 				AIE=\`$BB cat /sys/kernel/AiO_HotPlug/toggle\`
 					$BB echo '{ SCheckBox:{
@@ -2843,7 +2846,7 @@ cat << CTAG
 						step:1,
 						default:'$MBC',
 						action:"generic /sys/kernel/AiO_HotPlug/big_cores",
-				}},'
+					}},'
 				fi
 				if [ -f "/sys/kernel/AiO_HotPlug/LITTLE_cores" ]; then
 				MBC=\`$BB cat /sys/kernel/AiO_HotPlug/LITTLE_cores\`;
@@ -2857,7 +2860,7 @@ cat << CTAG
 						step:1,
 						default:'$MBC',
 						action:"generic /sys/kernel/AiO_HotPlug/LITTLE_cores",
-				}},'
+					}},'
 				fi
 			fi`
 		]
