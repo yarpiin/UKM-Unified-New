@@ -165,6 +165,40 @@ case "$1" in
 			$BB echo "4"
 		fi;
 	;;
+	MaxCPUBig)
+	
+		MAXCPU=/sys/module/clock_cpu_8996;
+		MAXCPU1=/sys/devices/system/cpu/cpu7;
+		
+		
+		
+		if [ -d "$MAXCPU" ]; then
+			$BB echo "2"
+		
+		elif [ -d "$MAXCPU1" ]; then
+			$BB echo "4"
+		
+		else
+			$BB echo "2"
+		fi;
+	;;
+	MaxCPULittle)
+	
+		MAXCPU=/sys/module/clock_cpu_8996;
+		MAXCPU1=/sys/devices/system/cpu/cpu7;
+		
+		
+		
+		if [ -d "$MAXCPU" ]; then
+			$BB echo "2"
+		
+		elif [ -d "$MAXCPU1" ]; then
+			$BB echo "4"
+		
+		else
+			$BB echo "2"
+		fi;
+	;;
 	CPUGovernorList)
 		for CPUGOV in `$BB cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
 			$BB echo "\"$CPUGOV\",";
