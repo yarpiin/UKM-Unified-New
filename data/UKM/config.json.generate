@@ -24,6 +24,10 @@ cat << CTAG
 			$BB echo ','
 			. $UKM/config.json.generate.thermal
 			$BB echo ','
+			if [ -f "/sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels" ]; then
+				. $UKM/config.json.generate.cpuvolt
+				$BB echo ','
+			fi
 		else
 			. $UKM/config.json.generate.error
 		fi`
