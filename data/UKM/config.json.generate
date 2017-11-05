@@ -22,6 +22,8 @@ cat << CTAG
 			$BB echo ','
 			. $UKM/config.json.generate.hotplug
 			$BB echo ','
+			. $UKM/config.json.generate.thermal
+			$BB echo ','
 		else
 			. $UKM/config.json.generate.error
 		fi`

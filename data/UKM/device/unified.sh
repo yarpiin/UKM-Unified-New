@@ -82,6 +82,19 @@ case "$1" in
 
 		$BB echo $MAXCPU;
 	;;
+	MinFreqIndex)
+		ID=0;
+		MAXID=8;
+		while read FREQ TIME; do
+			LABEL=$((FREQ / 1000));
+			if [ $FREQ -gt "384000" ] && [ $ID -le $MAXID ]; then
+				MFIT="$MFIT $ID:\"${LABEL} MHz\", ";
+			fi;
+			ID=$((ID + 1));
+		done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+
+		$BB echo $MFIT;
+	;;
 	DirCPUMinFrequency)
 		$BB echo "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq";
 	;;
