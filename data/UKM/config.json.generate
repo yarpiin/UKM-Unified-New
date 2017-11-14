@@ -28,6 +28,12 @@ cat << CTAG
 				. $UKM/config.json.generate.cpuvolt
 				$BB echo ','
 			fi
+		    	if [ -d "/sys/module/clock_cpu_8996" ]; then
+		        	. $UKM/config.json.generate.kryo.io
+		    	else
+		        	. $UKM/config.json.generate.io
+				$BB echo ','
+		    	fi
 		else
 			. $UKM/config.json.generate.error
 		fi`

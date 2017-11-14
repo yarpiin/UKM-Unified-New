@@ -927,4 +927,7 @@ case "$1" in
 	LiveAio)
 			$BB echo "AiO Hotplug Driver"
 	;;
+	LiveIO)
+			$BB echo "I/O Scheduler"
+	;;
 esac;
