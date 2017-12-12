@@ -1,9 +1,10 @@
 cat << CTAG
 {
 	name:GAMMA,
-			{ SPane:{
-				title:"Info"
-			}},
+		elements:[
+                    { STitleBar:{ 
+                        title:"Info" 
+                                }},
 				{ SDescription:{
 					description:"Allows to adjust various LCD screen settings."
 				}},
@@ -12,14 +13,11 @@ cat << CTAG
 					style:italic,
 					action:"live Gamma"
 				}},
-				{ SPane:{
-					title:"LCD Screen Settings",
-				}},
 			`if [ -d "/sys/devices/platform/kcal_ctrl.0" ]; then
 				if [ -f "/sys/devices/platform/kcal_ctrl.0/kcal" ]; then
 				KCAL=\`$BB cat /sys/devices/platform/kcal_ctrl.0/kcal\`;
 					$BB echo '{ SPane:{
-						title:"Gamma Settings",
+						title:"KCAL Control",
 					}},
 						{ SGeneric:{
 							title:"KCAL",
