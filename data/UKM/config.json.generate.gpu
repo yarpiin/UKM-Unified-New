@@ -1,0 +1,247 @@
+cat << CTAG
+{
+	name:GPU,
+		elements:[
+			{ SPane:{
+				title:"Info"
+			}},
+				{ SDescription:{
+					description:"CPU frequency scaling and governor control."
+				}},
+				{ SLiveLabel:{
+					refresh:800,
+					style:italic,
+					action:"live GPUFrequency"
+				}},
+				{ SPane:{
+					title:"GPU Frequency Scaling",
+				}},
+				`if [ -f "\`sh $DEVICE DirGPUMinPwrLevel\`" ]; then
+				GPUMIN=\`sh $DEVICE DirGPUMinPwrLevel\`
+					$BB echo '{ SSeekBar:{
+						title:"GPU Min Frequency",
+						description:"Set the minimum frequency the GPU scales down to.",
+						default:'\`$BB cat $GPUMIN\`',
+						action:"gpuset '$GPUMIN'",
+						values:{
+							'\`sh $DEVICE GPUFrequencyList\`'
+						}
+					}},'
+				fi`
+				`if [ -f "\`sh $DEVICE DirGPUMaxFrequency\`" ]; then
+				GPUMAX=\`sh $DEVICE DirGPUMaxFrequency\`
+					$BB echo '{ SSeekBar:{
+						title:"GPU Max Frequency",
+						description:"Set the maximum frequency the GPU scales up to.",
+						default:'\`$BB cat $GPUMAX\`',
+						action:"generic '$GPUMAX'",
+						values:{
+							'\`sh $DEVICE GPUFrequencyList\`'
+						}
+				}},'
+				fi`
+			`if [ -f "\`sh $DEVICE DirGPUGovernor\`" ]; then
+			GPUGOV=\`sh $DEVICE DirGPUGovernor\`
+				$BB echo '{ SPane:{
+					title:"GPU Governor",
+					description:"The GPU Governor makes scaling decisions based on specific algorithm for 2D/3D scenarios."
+				}},
+					{ SOptionList:{
+						default:'\`sh $DEVICE DefaultGPUGovernor\`',
+						action:"gpuset '$GPUGOV'",
+						values:[
+							'\`sh $DEVICE GPUGovernorList\`'
+						]
+					}},'
+			fi`
+			`SGA=/sys/module/msm_kgsl_core/parameters;
+			if [ -f "$SGA/simple_laziness" ] || [ -f "$SGA/simple_ramp_threshold" ] || [ -d "/sys/module/simple_gpu_algorithm/parameters" ]; then
+
+			[ -d "/sys/module/simple_gpu_algorithm/parameters" ] && SGA=/sys/module/simple_gpu_algorithm/parameters;
+			
+				$BB echo '{ SPane:{
+					title:"Simple Governor Tunables"
+				}},'
+				if [ -f "$SGA/simple_gpu_activate" ]; then
+					SIMPLE=\`$BB cat $SGA/simple_gpu_activate\`
+					$BB echo '{ SCheckBox:{
+						label:"Enable",
+						description:"An add-on for MSM Adreno TZ GPU Governor. Developed by faux123.",
+						default:'$SIMPLE',
+						action:"generic '$SGA'/simple_gpu_activate"
+					}},'
+				fi
+				if [ -f "$SGA/simple_laziness" ]; then
+					LAZ=\`$BB cat $SGA/simple_laziness\`
+					$BB echo '{ SSeekBar:{
+						title:"Laziness",
+						description:"Adjusts the number of times the governor skips ramp down requests. Higher = better performance (more battery drain).",
+						default:'$LAZ',
+						action:"generic '$SGA'/simple_laziness",
+						min:0,
+						max:10,
+						step:1
+					}},'
+				fi
+				if [ -f "$SGA/simple_ramp_threshold" ]; then
+					RAMP=\`$BB cat $SGA/simple_ramp_threshold\`
+					$BB echo '{ SSeekBar:{
+						title:"Ramp Threshold",
+						description:"Adjusts the threshold to ramp up or down GPU frequencies. Lower = better performance (more battery drain).",
+						default:'$RAMP',
+						action:"generic '$SGA'/simple_ramp_threshold",
+						min:0,
+						max:10000,
+						step:1000
+					}},'
+				fi
+			fi`
+			`if [ -f "/sys/module/msm_kgsl_core/parameters/up_threshold" ] || [ -f "/sys/module/msm_kgsl_core/parameters/down_threshold" ] || [ -f "/sys/module/msm_kgsl_core/parameters/sample_time_ms" ]; then
+				$BB echo '{ SPane:{
+					title:"Interactive Governor Tunables"
+				}},'
+				if [ -f "/sys/module/msm_kgsl_core/parameters/down_threshold" ]; then
+					DT=\`$BB cat /sys/module/msm_kgsl_core/parameters/down_threshold\`
+					$BB echo '{ SSeekBar:{
+						title:"Down Threshold",
+						description:"When the GPU load is lower than this level, it ramps down the frequency one level.",
+						default:'$DT',
+						action:"generic /sys/module/msm_kgsl_core/parameters/down_threshold",
+						min:0,
+						max:100,
+						step:1
+					}},'
+				fi
+				if [ -f "/sys/module/msm_kgsl_core/parameters/up_threshold" ]; then
+					UT=\`$BB cat /sys/module/msm_kgsl_core/parameters/up_threshold\`
+					$BB echo '{ SSeekBar:{
+						title:"Up Threshold",
+						description:"When the GPU load is above this level, it ramps up the frequency one level.",
+						default:'$UT',
+						action:"generic /sys/module/msm_kgsl_core/parameters/up_threshold",
+						min:0,
+						max:100,
+						step:1
+					}},'
+				fi
+				if [ -f "/sys/module/msm_kgsl_core/parameters/sample_time_ms" ]; then
+					ST=\`$BB cat /sys/module/msm_kgsl_core/parameters/sample_time_ms\`
+					$BB echo '{ SSeekBar:{
+						title:"Sample Time",
+						description:"Sample time to ramp up or down GPU.",
+						unit:" ms",
+						default:'$ST',
+						action:"generic /sys/module/msm_kgsl_core/parameters/sample_time_ms",
+						min:0,
+						max:1000,
+						step:10
+					}},'
+				fi
+			fi`
+			`if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/gpu_mv_table" ]; then
+				$BB echo '{ SPane:{
+					title:"GPU Voltages"
+				}},'
+					while read UVOLT UNIT; do
+					VOLTAGE=$(($VOLTAGE+1));
+						$BB echo '{ SSeekBar:{
+							default:'$UVOLT',
+							title:"Voltage '${VOLTAGE}'",
+							action:"voltage gpuvolt '${VOLTAGE}'",
+							unit:"' ${UNIT}'",'
+							if [ "$UVOLT" -ge "900000" ]; then
+								$BB echo 'min:900000, max:1200000, step:5000 }},'
+							else
+								$BB echo 'min:900, max:1200, step:5 }},'
+							fi;
+					done < /sys/devices/system/cpu/cpu0/cpufreq/gpu_mv_table
+			fi`
+			`if [ -f "/sys/devices/soc.0/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost" -o -f "/sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost" -o -f "/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/adrenoboost" -o -f "/sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost" ]; then
+				$BB echo '{ SPane:{
+					title:"Adrenoboost"
+				}},'
+				if [ -f "/sys/devices/soc.0/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost" ]; then
+				ADB=\`$BB cat /sys/devices/soc.0/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost\`
+					$BB echo '{ SOptionList:{
+						description:"Gpu scaling driver .",
+						default:'$ADB',
+						action:"generic /sys/devices/soc.0/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost",
+						values:{
+							0:"Off", 1:"Low",2:"Medium", 3:"Agressive",
+						}
+					}},'
+				fi
+				if [ -f "/sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost" ]; then
+				ADB=\`$BB cat /sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost\`
+					$BB echo '{ SOptionList:{
+						description:"Gpu scaling driver .",
+						default:'$ADB',
+						action:"generic /sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost",
+						values:{
+							0:"Off", 1:"Low",2:"Medium", 3:"Agressive",
+						}
+					}},'
+				fi
+				if [ -f "/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/adrenoboost" ]; then
+				ADB=\`$BB cat /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/adrenoboost\`
+					$BB echo '{ SOptionList:{
+						description:"Gpu scaling driver .",
+						default:'$ADB',
+						action:"generic /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/adrenoboost",
+						values:{
+							0:"Off", 1:"Low",2:"Medium", 3:"Agressive",
+						}
+					}},'
+				fi
+				if [ -f "/sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost" ]; then
+				ADB=\`$BB cat /sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost\`
+					$BB echo '{ SOptionList:{
+						description:"Gpu scaling driver .",
+						default:'$ADB',
+						action:"generic /sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost",
+						values:{
+							0:"Off", 1:"Low",2:"Medium", 3:"Agressive",
+						}
+					}},'
+				fi
+            fi`
+			`if [ -f "/sys/module/adreno_idler/parameters/adreno_idler_active" ]; then
+				IDLER=\`bool /sys/module/adreno_idler/parameters/adreno_idler_active\`
+				IDLELOC=/sys/module/adreno_idler/parameters;
+					$BB echo '{ SPane:{
+						title:"Adreno_Idler Tunables"
+					}},
+						{ SCheckBox:{
+							label:"Enable",
+							description:"An add-on for MSM Adreno TZ GPU Governor. Developed by arter97.",
+							default:'$IDLER',
+							action:"boolean /sys/module/adreno_idler/parameters/adreno_idler_active"
+						}},
+						{ SSpacer:{
+							height: 1
+						}},'
+						$BB echo '{ SGeneric:{
+							title:"Down Differential",
+							description:"Decrease this value to idle faster. Increase this value to idle slower. ",
+							default:'cat $IDLELOC/adreno_idler_downdifferential',
+							action:"adreno_idler '$IDLELOC'/adreno_idler_downdifferential"
+						}},'
+						$BB echo '{ SGeneric:{
+							title:"Idle Wait",
+							description:"Time to wait for entering idle, measured in milliseconds. This implementation is to prevent micro-lags on scrolling or playing games, meaning the lower it gets, the slower & low-power it would get.",
+							default:'cat $IDLELOC/adreno_idler_idlewait',
+							action:"adreno_idler '$IDLELOC'/adreno_idler_idlewait"
+						}},'
+						$BB echo '{ SGeneric:{
+							title:"Idle Workload",
+							description:"Any workload higher than this will be treated as non-idle workload, meaning the higher it gets, the slower & low-power it would get.",
+							default:'cat $IDLELOC/adreno_idler_idleworkload',
+							action:"adreno_idler '$IDLELOC'/adreno_idler_idleworkload"
+						}},
+						{ SSpacer:{
+							height: 1
+						}},'
+				fi`
+		]
+}
+CTAG
