@@ -3,7 +3,10 @@ cat << CTAG
 	name:I/O,
 		elements:[
 			{ STitleBar:{
-				title:"I/O Control"
+				title:"Info"
+				}},
+				{ SDescription:{
+					description:"Input/output (I/O) scheduling controls the order that block I/O operations will be submitted to storage volumes."
 				}},
 				{ SLiveLabel:{
 					refresh:0,
