@@ -8,6 +8,14 @@ cat << CTAG
 				{ SDescription:{
 					description:"Use only one thermal driver from the following options, using more than at the same time may cause unexpected behavior."
 				}},
+				{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live Thermal"
+					}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 			`if [ -f "/system/bin/thermald" ]; then
 			THERMALD=\`ps | $BB grep thermald\`
 				if [ -n "$THERMALD" ]; then THERMALD=1; else THERMALD=0; fi
