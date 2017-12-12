@@ -327,52 +327,6 @@ case "$1" in
 			done;
 		fi;
 	;;
-	GPUFrequencyList)
-	
-		GPUPW=/sys/devices/platform/kgsl-2d0.0/kgsl/kgsl-2d0/gpuclk;
-		GPUPW1=/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/gpuclk;
-		GPUPW2=/sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
-		GPUPW3=/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency;
-		GPUPW4=/sys/kernel/tegra_gpu/gpu_floor_rate;
-		GPUPW5=/sys/devices/platform/dfrgx/devfreq/dfrgx/min_freq;
-
-		if [ -f "$GPUPW" ]; then
-			for GPUFREQ in `$BB cat /sys/devices/platform/kgsl-2d0.0/kgsl/kgsl-2d0/gpu_available_frequencies | $BB tr ' ' '\n' | $BB sort -u` ; do
-			LABEL=$((GPUFREQ / 1000000));
-				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
-			done;
-			
-		elif [ -f "$GPUPW1" ]; then
-			for GPUFREQ in `$BB cat /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/gpu_available_frequencies | $BB tr ' ' '\n' | $BB sort -u` ; do
-			LABEL=$((GPUFREQ / 1000000));
-				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
-			done;
-			
-		elif [ -f "$GPUPW2" ]; then
-			for GPUFREQ in `$BB cat /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies | $BB tr ' ' '\n' | $BB sort -u` ; do
-			LABEL=$((GPUFREQ / 1000000));
-				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
-			done;
-			
-		elif [ -f "$GPUPW3" ]; then
-			for GPUFREQ in `$BB cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_list | $BB tr ' ' '\n' | $BB sort -u` ; do
-			LABEL=$((GPUFREQ / 1000000));
-				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
-			done;
-			
-		elif [ -f "$GPUPW4" ]; then
-			for GPUFREQ in `$BB cat /sys/kernel/tegra_gpu/gpu_available_rates | $BB tr ' ' '\n' | $BB sort -u` ; do
-			LABEL=$((GPUFREQ / 1000000));
-				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
-			done;
-			
-		else
-			for GPUFREQ in `$BB cat /sys/devices/platform/dfrgx/devfreq/dfrgx/available_frequencies | $BB tr ' ' '\n' | $BB sort -u` ; do
-			LABEL=$((GPUFREQ / 1000000));
-				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
-			done;
-		fi;
-	;;
 	DirGPUMinPwrLevel)
 	
 		GPUPW=/sys/devices/platform/kgsl-2d0.0/kgsl/kgsl-2d0/gpuclk;
@@ -425,6 +379,14 @@ case "$1" in
 		else
 			$BB echo "$GPUMAXFREQ5";
 		fi;
+	;;
+	SetGPUMinPwrLevel)
+
+		if [[ ! -z $3 ]]; then
+			$BB echo $3 > $2;
+		fi;
+		
+		$BB echo `$BB cat $2`;
 	;;
 	DefaultGPUGovernor)
 		
@@ -480,57 +442,33 @@ case "$1" in
 	;;
 	IOSchedulerList)
 	
-		IOSCH1=/sys/block/mmcblk0/queue/scheduler;
-        IOSCH2=/sys/block/sda/queue/scheduler;
 		
-		if [ -f "IOSCH1" ]; then
+		if [ -f "/sys/block/mmcblk0/queue/scheduler" ]; then
 			for IOSCHED in `$BB cat /sys/block/mmcblk0/queue/scheduler | $BB sed -e 's/\]//;s/\[//'`; do
 				$BB echo "\"$IOSCHED\",";
-			done;
-			
-		else
-			for IOSCHED in `$BB cat /sys/block/sda/queue/scheduler | $BB sed -e 's/\]//;s/\[//'`; do
-				$BB echo "\"$IOSCHED\",";
-			done;
-		fi;
-	;;
-	IOSchedulerList)
-	
-		IOSCH1=/sys/block/mmcblk0/queue/scheduler;
-        IOSCH2=/sys/block/sda/queue/scheduler;
-		
-		if [ -f "IOSCH1" ]; then
-			for IOSCHED in `$BB cat /sys/block/mmcblk0/queue/scheduler | $BB sed -e 's/\]//;s/\[//'`; do
-				$BB echo "\"$IOSCHED\",";
-			done;
-			
-		else
+			done;	
+
+		elif [ -f "/sys/block/sda/queue/scheduler" ]; then
 			for IOSCHED in `$BB cat /sys/block/sda/queue/scheduler | $BB sed -e 's/\]//;s/\[//'`; do
 				$BB echo "\"$IOSCHED\",";
 			done;
 		fi;
 	;;
 	DirIOScheduler)
-
-		IOSCH1=/sys/block/mmcblk0/queue/scheduler;
-        IOSCH2=/sys/block/sda/queue/scheduler;
-		
-		if [ -f "$IOSCH1" ]; then
+	
+		if [ -f "/sys/block/mmcblk0/queue/scheduler" ]; then
 			$BB echo "/sys/block/mmcblk0/queue/scheduler";
-		
-		else
+
+		elif [ -f "/sys/block/sda/queue/scheduler" ]; then
 			$BB echo "/sys/block/sda/queue/scheduler";
 		fi;
 	;;
 	DirIOSchedulerTree)
 	
-		IOSCH1=/sys/block/mmcblk0/queue/iosched;
-        IOSCH2=/sys/block/sda/queue/iosched;
-		
-		if [ -f "$IOSCH1" ]; then
+		if [ -d "/sys/block/mmcblk0/queue/iosched" ]; then
 			$BB echo "/sys/block/mmcblk0/queue/iosched";
-		
-		else
+
+		elif [ -d "/sys/block/sda/queue/iosched" ]; then
 			$BB echo "/sys/block/sda/queue/iosched";
 		fi;
 	;;
@@ -877,10 +815,10 @@ case "$1" in
 			$BB echo "Simple Thermal Driver"
 	;;
 	LiveCpuBoost)
-			$BB echo "CPU Boost Driver"
-	;;
-	LiveCpuBoost)
 			$BB echo "CPU Boost"
+	;;
+	LiveThermal)
+			$BB echo "Thermal Driver"
 	;;
 	LiveCoreControl)
 			$BB echo "Core Control"
