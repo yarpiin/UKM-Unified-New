@@ -327,7 +327,7 @@ case "$1" in
 			done;
 		fi;
 	;;
-	DirGPUMinPwrLevel)
+	DirGPUMinFrequency)
 	
 		GPUPW=/sys/devices/platform/kgsl-2d0.0/kgsl/kgsl-2d0/gpuclk;
 		GPUPW1=/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/gpuclk;
@@ -336,20 +336,23 @@ case "$1" in
 		GPUPW4=/sys/kernel/tegra_gpu/gpu_floor_rate;
 		GPUPW5=/sys/devices/platform/dfrgx/devfreq/dfrgx/min_freq;
 	
-		if [ -f "$GPUMPW" ]; then
-			$BB echo "$GPUMPW";
+		if [ -f "$GPUPW" ]; then
+			$BB echo "$GPUPW";
 		
-		elif [ -f "$GPUMPW1" ]; then
-			$BB echo "$GPUMPW1";
+		elif [ -f "$GPUPW1" ]; then
+			$BB echo "$GPUPW1";
 		
-		elif [ -f "$GPUMPW2" ]; then
-			$BB echo "$GPUMPW2";
+		elif [ -f "$GPUPW2" ]; then
+			$BB echo "$GPUPW2";
 		
-		elif [ -f "$GPUMPW3" ]; then
-			$BB echo "$GPUMPW3";
-			
-		else
-			$BB echo "$GPUMPW4";
+		elif [ -f "$GPUPW3" ]; then
+			$BB echo "$GPUPW3";
+
+		elif [ -f "$GPUPW4" ]; then
+			$BB echo "$GPUPW4";
+		
+        else
+			$BB echo "$GPUPW5";
 		fi;
 	;;
 	DirGPUMaxFrequency)

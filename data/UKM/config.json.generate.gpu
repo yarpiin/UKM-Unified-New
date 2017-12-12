@@ -16,13 +16,13 @@ cat << CTAG
 				{ SPane:{
 					title:"GPU Frequency Scaling",
 				}},
-				`if [ -f "\`sh $DEVICE DirGPUMinPwrLevel\`" ]; then
-				GPUMIN=\`sh $DEVICE DirGPUMinPwrLevel\`
+				`if [ -f "\`sh $DEVICE DirGPUMinFrequency\`" ]; then
+				GPUMIN=\`sh $DEVICE DirGPUMinFrequency\`
 					$BB echo '{ SSeekBar:{
 						title:"GPU Min Frequency",
 						description:"Set the minimum frequency the GPU scales down to.",
 						default:'\`$BB cat $GPUMIN\`',
-						action:"gpuset '$GPUMIN'",
+						action:"generic '$GPUMIN'",
 						values:{
 							'\`sh $DEVICE GPUFrequencyList\`'
 						}
