@@ -297,8 +297,8 @@ cat << CTAG
 				    if [ -f "/sys/kernel/cpu_input_boost/enabled" ]; then
 					    INB=\`$BB cat /sys/kernel/cpu_input_boost/enabled\`
 						$BB echo '{ SCheckBox:{
+							description:"Input Boost driver developed by Sultanxda",
 							label:"Enable",
-							description:"Enable/Disable Input Boost developed by Sultanxda",
 							default:'$INB',
 							action:"generic /sys/kernel/cpu_input_boost/enabled"
 						}},'
@@ -316,6 +316,9 @@ cat << CTAG
 						    	action:"generic /sys/kernel/cpu_input_boost/ib_duration_ms",
 					    }},'
 					fi
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
 				fi`
 				`if [ -d "/sys/kernel/fp_boost" ]; then
 				    $BB echo '{ SPane:{
