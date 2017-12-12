@@ -9,6 +9,20 @@ cat << CTAG
 					description:"CPU frequency scaling and governor control."
 				}},
 				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live GPU"
+					}},
+				{ SSpacer:{
+						height: 1
+				    	}},
+				{ SPane:{
+						title:"Live GPU Frequency"
+					}},
+				{ SSpacer:{
+						height: 1
+				    	}},
+				{ SLiveLabel:{
 					refresh:800,
 					style:italic,
 					action:"live GPUFrequency"

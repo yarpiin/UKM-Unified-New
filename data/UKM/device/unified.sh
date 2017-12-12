@@ -874,4 +874,7 @@ case "$1" in
 	LiveGamma)
 			$BB echo "Gamma Settings"
 	;;
+	LiveGPU)
+			$BB echo "GPU Control"
+	;;
 esac;

@@ -9,6 +9,9 @@ case $1 in
 	CPU2)
 		$BB echo `sh $DEVICE LiveCPU2`;
 	;;
+	GPU)
+		$BB echo `sh $DEVICE LiveGPU`;
+	;;
 	CPUFrequency)
 		$BB echo `sh $DEVICE LiveCPUFrequency`;
 	;;
