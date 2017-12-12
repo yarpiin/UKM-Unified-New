@@ -2,31 +2,37 @@ cat << CTAG
 {
 	name:CPU 2,
 		elements:[
-			{ SLiveLabel:{
+			{ SPane:{
+				title:"Info"
+			}},
+				{ SDescription:{
+					description:"BIG cluster frequency scaling and governor control."
+				}},
+				{ SLiveLabel:{
 						refresh:0,
 						style:italic,
 						action:"live CPU2"
 					}},
-			{ SSpacer:{
+				{ SSpacer:{
 						height: 1
-				    }},
-			{ SPane:{
-				title:"Live Cpu Frequency:"
-			}},
-			{ SSpacer:{
+				   	 }},
+				{ SPane:{
+						title:"Live Cpu Frequency:"
+					}},
+				{ SSpacer:{
 						height: 1
-				    }},
-			{ SLiveLabel:{
+				   	}},
+				{ SLiveLabel:{
 						refresh:800,
 						style:italic,
 						action:"live CPU1Frequency"
-				}},
-			{ SSpacer:{
+					}},
+				{ SSpacer:{
 						height: 1
-				    }},
-			{ STitleBar:{
-				title:"CPU Frequency Scaling"
-			}},
+					}},
+				{ STitleBar:{
+						title:"CPU Frequency Scaling"
+				}},
 				`if [ -f "/sys/devices/system/cpu/cpu4/cpufreq/scaling_available_frequencies" ]; then
 					$BB echo '{ SSpacer:{
 						height: 1
