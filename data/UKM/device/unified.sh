@@ -433,7 +433,7 @@ case "$1" in
 	;;
 	GPUGovernorList)
 		
-			$BB echo "msm-adreno-tz","performance", "powersave", "userspace", "cpufreq";
+			$BB echo "msm-adreno-tz","performance", "powersave", "ondemand", "userspace", "cpufreq";
 
 	;;
 	SetGPUGovernor)
