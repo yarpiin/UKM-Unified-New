@@ -871,4 +871,7 @@ case "$1" in
 	LiveIO)
 			$BB echo "I/O Scheduler"
 	;;
+	LiveGamma)
+			$BB echo "Gamma Settings"
+	;;
 esac;

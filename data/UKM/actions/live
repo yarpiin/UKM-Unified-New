@@ -65,4 +65,7 @@ case $1 in
 	;;
 	IO)
 		$BB echo `sh $DEVICE LiveIO`;
+	;;
+	Gamma)
+		$BB echo `sh $DEVICE LiveGamma`;
 esac;
