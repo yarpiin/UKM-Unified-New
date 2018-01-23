@@ -82,6 +82,26 @@ cat << CTAG
 					default:`$BB cat /proc/sys/vm/dirty_ratio`,
 					action:"generic /proc/sys/vm/dirty_ratio"
 				}},
+				{ SSeekBar:{
+					title:"Dirty Expire Centisecs",
+					description:"This tunable is used to define when dirty data is old enough to be eligible for writeout by the kernel flusher threads.  It is expressed in 100'ths of a second.  Data which has been dirty in-memory for longer than this interval will be written out next time a flusher thread wakes up.",
+					unit:"cs",
+					step:10,
+					min:10,
+					max:5000,
+					default:`$BB cat /proc/sys/vm/dirty_expire_centisecs`,
+					action:"generic /proc/sys/vm/dirty_expire_centisecs"
+				}},
+				{ SSeekBar:{
+					title:"Dirty Writeback Centisecs",
+					description:"The kernel flusher threads will periodically wake up and write old data out to disk.  This tunable expresses the interval between those wakeups, in 100'ths of a second.  Setting this to zero disables periodic writeback altogether.",
+					unit:"cs",
+					step:100,
+					min:0,
+					max:9000,
+					default:`$BB cat /proc/sys/vm/dirty_writeback_centisecs`,
+					action:"generic /proc/sys/vm/dirty_writeback_centisecs"
+				}},
 				{ SOptionList:{
 					title:"Drop Caches (Clear VFS Cache After Boot)",
 					description:"This option will force rebuild of file system cache based on actual app usage rather than boot/startup processes. NOTE: This process can take from 1-2 minutes (Enable for better file system read/write performance).",
@@ -96,7 +116,7 @@ cat << CTAG
 						unit:" kB",
 						step:50,
 						min:0,
-						max:20000,
+						max:30000,
 						default:'\`$BB cat /proc/sys/vm/extra_free_kbytes\`',
 						action:"generic /proc/sys/vm/extra_free_kbytes"
 					}},'
