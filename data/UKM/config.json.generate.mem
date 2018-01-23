@@ -1,12 +1,12 @@
 cat << CTAG
 {
-    name:Memory,
+    name:MEMORY,
 		elements:[
 			{ SPane:{
 				title:"Info"
 			}},
 				{ SDescription:{
-					description:"Virtual memory is a memory management uses hardware and software to allow device to compensate for physical memory shortages by temporarily transferring data from random access memory (RAM) to disk storage."
+					description:"Virtual memory management uses hardware and software to allow device to compensate for physical memory shortages by temporarily transferring data from random access memory (RAM) to disk storage."
 				}},
 				{ SLiveLabel:{
 						refresh:0,
