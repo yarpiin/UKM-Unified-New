@@ -71,4 +71,7 @@ case $1 in
 	;;
 	Gamma)
 		$BB echo `sh $DEVICE LiveGamma`;
+	;;
+	Memory)
+		$BB echo `sh $DEVICE LiveMemory`;
 esac;

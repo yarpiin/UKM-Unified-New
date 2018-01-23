@@ -877,4 +877,7 @@ case "$1" in
 	LiveGPU)
 			$BB echo "GPU Control"
 	;;
+	LiveMemory)
+			$BB echo "Vrtual Memory"
+	;;
 esac;

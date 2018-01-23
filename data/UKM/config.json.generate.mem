@@ -1,7 +1,21 @@
 cat << CTAG
 {
-    name:MEMORY,
+    name:Memory,
 		elements:[
+			{ SPane:{
+				title:"Info"
+			}},
+				{ SDescription:{
+					description:"Virtual memory is a memory management uses hardware and software to allow device to compensate for physical memory shortages by temporarily transferring data from random access memory (RAM) to disk storage."
+				}},
+				{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live Memory"
+					}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 			`if [ -f "/sys/devices/virtual/block/zram0/disksize" ]; then
 			ZRAM=\`$BB cat /sys/devices/virtual/block/zram0/disksize\`;
 			ZRAM=$((ZRAM / 1024 / 1024));
