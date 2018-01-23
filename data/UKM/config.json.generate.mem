@@ -1,0 +1,134 @@
+cat << CTAG
+{
+    name:MEMORY,
+		elements:[
+			`if [ -f "/sys/devices/virtual/block/zram0/disksize" ]; then
+			ZRAM=\`$BB cat /sys/devices/virtual/block/zram0/disksize\`;
+			ZRAM=$((ZRAM / 1024 / 1024));
+			$BB echo '{ SPane:{
+				title:"Z-RAM",
+				description:"Attempts to increase performance by avoiding paging on physical storage, instead using a compressed virtual device in RAM. Paging takes place in RAM until it is necessary to use the swap space on physical storage."
+			}},
+				{ SSeekBar:{
+					unit:" MB",
+					step:1,
+					min:0,
+					max:1024, 
+					default:'$ZRAM',
+					action:"zram /sys/devices/virtual/block/zram0/disksize"
+				}},'
+			fi`
+			`if [ -f "/sys/block/zram0/comp_algorithm" ]; then
+			CA=\`$BB echo $($UKM/actions/bracket-option /sys/block/zram0/comp_algorithm)\`;
+				$BB echo '{ SOptionList:{
+					title:"Compression Algorithm",
+					description:"Applying a different option will reset Z-RAM. LZ4 algorithm tends to have a faster decompression. More info: <a href='https://code.google.com/p/lz4/'>HERE</a>.",
+					default:'$CA',
+					action:"bracket-option /sys/block/zram0/comp_algorithm",
+					values:['
+						for COMPALG in \`$BB cat /sys/block/zram0/comp_algorithm | $BB sed -e "s/\]//;s/\[//"\`; do
+							echo "\"$COMPALG\",";
+						done;
+					$BB echo '],
+					notify:[
+						{
+							on:APPLY,
+							do:[ RESET, REFRESH, APPLY ],
+							to:"zram /sys/devices/virtual/block/zram0/disksize"
+						}
+					]
+				}},'
+			fi`
+			`if [ -f "/sys/block/zram0/max_comp_streams" ]; then
+			MCS=\`$BB cat /sys/block/zram0/max_comp_streams\`;
+				$BB echo '{ SSeekBar:{
+					title:"Max Compression Streams",
+					description:"Applying a different option will reset Z-RAM. Can have N write operations (depending on size of streams list) executing in parallel.",
+					min:1,
+					max:5,
+					step:1,
+					default:'$MCS',
+					action:"generic /sys/block/zram0/max_comp_streams",
+					notify:[
+						{
+							on:APPLY,
+							do:[ RESET, REFRESH, APPLY ],
+							to:"zram /sys/devices/virtual/block/zram0/disksize"
+						}
+					]
+				}},'
+			fi`
+			{ SPane:{
+				title:"Virtual Memory",
+				description:"Tune the operation of the VM subsystem of the Linux kernel and the writeout of dirty data to disk. Swappiness also affects Z-RAM operation on kernels which support swaps."
+			}},
+				{ SSeekBar:{
+					title:"Dirty Background Ratio",
+					description:"Contains, as a % of total system memory, the number of pages at which the pdflush background writeback daemon will start writing out dirty data.",
+					unit:"%",
+					step:1,
+					min:0,
+					max:100,
+					default:`$BB cat /proc/sys/vm/dirty_background_ratio`,
+					action:"generic /proc/sys/vm/dirty_background_ratio"
+				}},
+				{ SSeekBar:{
+					title:"Dirty Ratio",
+					description:"Contains, as a % of total system memory, the number of pages at which a process which is generating disk writes will itself start writing out dirty data. Lower the amount of unwritten write cache to reduce lags when a huge write is required.",
+					unit:"%",
+					step:1,
+					min:0,
+					max:100,
+					default:`$BB cat /proc/sys/vm/dirty_ratio`,
+					action:"generic /proc/sys/vm/dirty_ratio"
+				}},
+				{ SOptionList:{
+					title:"Drop Caches (Clear VFS Cache After Boot)",
+					description:"This option will force rebuild of file system cache based on actual app usage rather than boot/startup processes. NOTE: This process can take from 1-2 minutes (Enable for better file system read/write performance).",
+					default:0,
+					action:"dropcaches $UKM/files/dropcaches_prof",
+					values:{ 0:"Disabled", 1:"Enabled"
+					}
+				}},
+				`if [ -f "/proc/sys/vm/extra_free_kbytes" ]; then
+					$BB echo '{ SSeekBar:{
+						title:"Extra Free Kilobytes",
+						unit:" kB",
+						step:50,
+						min:0,
+						max:20000,
+						default:'\`$BB cat /proc/sys/vm/extra_free_kbytes\`',
+						action:"generic /proc/sys/vm/extra_free_kbytes"
+					}},'
+				fi`
+				{ SOptionList:{
+					title:"Laptop Mode (Auto FS Writeback Delay Mode)",
+					description:"This option will delay the writebacks of file system bits cached in RAM while screen is ON (Enable for better performance @ slight risk of possible data loss if crashed or sudden loss of power).",
+					default:`$BB cat /proc/sys/vm/laptop_mode`,
+					action:"generic /proc/sys/vm/laptop_mode",
+					values:{ 0:"Disabled", 1:"Enabled"
+					}
+				}},
+				{ SSeekBar:{
+					title:"Swappiness",
+					description:"Controls the tendency of the kernel to move processes out of physical memory and onto the swap disk. Because disks are much slower than RAM, this can lead to slower response times for system and applications if processes are too aggressively moved out of memory.",
+					unit:"%",
+					step:1,
+					min:0,
+					max:100,
+					default:`$BB cat /proc/sys/vm/swappiness`,
+					action:"generic /proc/sys/vm/swappiness"
+				}},
+				{ SSeekBar:{
+					title:"VFS Cache Pressure",
+					description:"Controls the tendency of the kernel to reclaim the memory which is used for caching of directory and inode objects. Lower = prefer to retain dentry and inode cache, higher = prefer to reclaim dentry and inodes cache.",
+					unit:"%",
+					step:1,
+					min:0,
+					max:150,
+					default:`$BB cat /proc/sys/vm/vfs_cache_pressure`,
+					action:"generic /proc/sys/vm/vfs_cache_pressure"
+				}},
+		]
+}
+CTAG
