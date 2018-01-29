@@ -1,0 +1,381 @@
+cat << CTAG
+{
+    name:MISC,
+		elements:[
+			`if [ -d "/sys/kernel/charge_levels/" ]; then
+				if [ -f "/sys/kernel/charge_levels/charge_info" ]; then
+					$BB echo '{ SPane:{
+						title:"Charge Levels Interface:"
+						}},
+						{ SLiveLabel:{
+							refresh:5000,
+							style:italic,
+							action:"live ChargeCurrent"
+						}},'
+				fi
+				if [ -f "/sys/kernel/charge_levels/charge_level_ac" ]; then
+				ACCL=\`$BB cat /sys/kernel/charge_levels/charge_level_ac\`
+					$BB echo '{ SSeekBar:{
+						title:"AC Charge Level",
+						description:"Set MAX mA allowed while charging via AC (0 = stock charging logic).",
+						unit:" mA",
+						min:0,
+						max:2000,
+						step:100,
+						default:'$ACCL',
+						action:"generic /sys/kernel/charge_levels/charge_level_ac"
+						}},'
+				fi
+				if [ -f "/sys/kernel/charge_levels/charge_level_usb" ]; then
+				USBCL=\`$BB cat /sys/kernel/charge_levels/charge_level_usb\`
+					$BB echo '{ SSeekBar:{
+						title:"USB Charge Level",
+						description:"Set MAX mA allowed while charging via USB (0 = stock charging logic).",
+						unit:" mA",
+						min:0,
+						max:1600,
+						step:100,
+						default:'$USBCL',
+						action:"generic /sys/kernel/charge_levels/charge_level_usb"
+						}},'
+				fi
+			fi`
+			`if [ -f "/sys/module/state_notifier/parameters/enabled" ] || [ -f "/sys/module/state_notifier/parameters/debug_mask" ]; then
+				$BB echo '{ SPane:{
+						title:"State Notifier"
+					}},
+					{ SSpacer:{
+						height: 1
+					}},
+					{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live StateNotifier"
+					}},'
+					if [ -f "/sys/module/state_notifier/parameters/enabled" ]; then
+					MHH=\`bool /sys/module/state_notifier/parameters/enabled\`;
+						$BB echo '{ SCheckBox:{
+							label:"Enable",
+							description:"Enable/Disable State Notifier.",
+							default:'$MHH',
+							action:"boolean /sys/module/state_notifier/parameters/enabled"
+						}},'
+					fi
+					if [ -f "/sys/module/state_notifier/parameters/debug_mask" ]; then
+					DEBUGSN=\`$BB cat /sys/module/state_notifier/parameters/debug_mask\`
+						$BB echo '{ SCheckBox:{
+							label:"Debug Mask",
+							description:"Allows you to activate debug related to driver operations.",
+							default:'$DEBUGSN',
+							action:"generic /sys/module/state_notifier/parameters/debug_mask"
+						}},'
+					fi
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
+					if [ -f "/sys/module/state_notifier/parameters/suspend_defer_time" ]; then
+					SDTSN=\`$BB cat /sys/module/state_notifier/parameters/suspend_defer_time\`;
+						$BB echo '{ SSeekBar:{
+							title:"Suspend Defer Time",
+							description:"Allows suspend routines wait a number of seconds to prevent false short suspend calls.",
+							min:0,
+							max:360,
+							step:1,
+							unit:" s",
+							default:'$SDTSN',
+							action:"generic /sys/module/state_notifier/parameters/suspend_defer_time"
+						}},'
+					fi
+			fi`
+			{ STitleBar:{
+				title:"TCP Congestion Control"
+			}},
+				{ SOptionList:{
+					description:"Set the algorithm of internet congestion avoidance, to possibly improve speeds and load times. More info: <a href='https://en.wikipedia.org/wiki/TCP_congestion-avoidance_algorithm'>HERE</a>",
+					default:`$BB cat \`sh $DEVICE DirTCPCongestion\``,
+					action:"generic `sh $DEVICE DirTCPCongestion`",
+					values:[
+						`sh $DEVICE TCPCongestionList`
+					]
+				}},
+			`if [ -d "/sys/kernel/power_suspend" ]; then
+				$BB echo '{ SPane:{
+					title:"Power Suspend"
+				}},'
+				if [ -f "/sys/kernel/power_suspend/power_suspend_mode" ] && [ "\`$BB grep 1.7 /sys/kernel/power_suspend/power_suspend_version\`" ]; then
+				PSM=\`$BB cat /sys/kernel/power_suspend/power_suspend_mode\`
+					$BB echo '{ SOptionList:{
+						title:"Power Suspend Mode",
+						description:"Kernel Mode, LCD Hooks & Highest Level Hook are automatic and managed by the kernel, to manually enable or disable the Power Suspend State choose User Mode.",
+						default:'$PSM',
+						action:"generic /sys/kernel/power_suspend/power_suspend_mode",
+						values:{
+							1:"User Mode",2:"LCD Hooks",
+						}
+					}},'
+				fi
+                if [ -f "/sys/kernel/power_suspend/power_suspend_mode" ] && [ "\`$BB grep 1.6 /sys/kernel/power_suspend/power_suspend_version\`" ]; then
+				PSM=\`$BB cat /sys/kernel/power_suspend/power_suspend_mode\`
+					$BB echo '{ SOptionList:{
+						title:"Power Suspend Mode",
+						description:"Kernel Mode, LCD Hooks & Highest Level Hook are automatic and managed by the kernel, to manually enable or disable the Power Suspend State choose User Mode.",
+						default:'$PSM',
+						action:"generic /sys/kernel/power_suspend/power_suspend_mode",
+						values:{
+							0:"Autosleep", 1:"User Mode",2:"LCD Hooks", 3:"Hybrid Mode",
+						}
+					}},'
+				fi
+                if [ -f "/sys/kernel/power_suspend/power_suspend_mode" ] && [ "\`$BB grep 1.5 /sys/kernel/power_suspend/power_suspend_version\`" ]; then
+				PSM=\`$BB cat /sys/kernel/power_suspend/power_suspend_mode\`
+					$BB echo '{ SOptionList:{
+						title:"Power Suspend Mode",
+						description:"Kernel Mode, LCD Hooks & Highest Level Hook are automatic and managed by the kernel, to manually enable or disable the Power Suspend State choose User Mode.",
+						default:'$PSM',
+						action:"generic /sys/kernel/power_suspend/power_suspend_mode",
+						values:{
+							0:"Autosleep", 1:"User Mode",2:"LCD Hooks", 3:"Hybrid Mode",
+						}
+					}},'
+				fi
+				if [ -f "/sys/kernel/power_suspend/power_suspend_state" ]; then
+				MHH=\`$BB cat /sys/kernel/power_suspend/power_suspend_state\`;
+					$BB echo '{ SCheckBox:{
+						label:"Enable",
+						description:"Kernel power management driver when screen is off. Better battery savings if enabled. Note: You can only change this setting if Power Suspend Mode is in User Mode.",
+						default:'$MHH',
+						action:"powersuspend /sys/kernel/power_suspend/power_suspend_state"
+					}},'
+				fi
+			fi`
+            `if [ -f "/sys/class/misc/btk_control/btkc_mode" ]; then
+				$BB echo '{ SPane:{
+					title:"Boeffla Touchkey Control"
+				}},'
+				if [ -f "/sys/class/misc/btk_control/btkc_mode" ]; then
+				BTC=\`$BB cat /sys/class/misc/btk_control/btkc_mode\`
+					$BB echo '{ SOptionList:{
+						title:"Touchkey Control",
+						description:"Touchkey driver to control key backlight developed by Lord Boeffla.",
+						default:'$BTC',
+						action:"generic /sys/class/misc/btk_control/btkc_mode",
+						values:{
+							0:"Normal Mode", 1:"Lit When Pressed", 2:"Lights Always Off",
+						}
+					}},'
+				fi
+				if [ -f "/sys/class/misc/btk_control/btkc_timeout" ]; then
+				BTT=\`$BB cat /sys/class/misc/btk_control/btkc_timeout\`
+					$BB echo '{ SSeekBar:{
+						title:"Touch Key lights Timeout",
+						description:"Sets touchkey timeout.",
+						unit:" ms",
+						min:0,
+						max:30000,
+						step:1000,
+						default:'$BTT',
+						action:"generic /sys/class/misc/btk_control/btkc_timeout"
+					}},'
+				fi
+			fi`
+			`if [ -f "/sys/class/timed_output/vibrator/amp" ]; then
+			VIBRATOR=\`$BB cat /sys/class/timed_output/vibrator/amp\`
+				$BB echo '{ SPane:{
+					title:"Vibrator Strength Amp"
+				}},
+					{ SSeekBar:{
+						description:"Allows to set the intensity of the vibrator.",
+						unit:"%",
+						step:1,
+						min:0,
+						max:100,
+						default:'$VIBRATOR',
+						action:"generic /sys/class/timed_output/vibrator/amp"
+					}},'
+			fi`
+			`if [ -f "/sys/devices/virtual/timed_output/vibrator/vtg_level" ]; then
+			VTGLVL=\`$BB cat /sys/devices/virtual/timed_output/vibrator/vtg_level\`
+			VTGMIN=\`$BB cat /sys/devices/virtual/timed_output/vibrator/vtg_min\`
+			VTGMAX=\`$BB cat /sys/devices/virtual/timed_output/vibrator/vtg_max\`
+				$BB echo '{ SPane:{
+					title:"Vibrator Strength VTG"
+				}},
+					{ SSeekBar:{
+						description:"Allows to set the intensity of the vibrator.",
+						step:1,
+						min:'$VTGMIN',
+						max:'$VTGMAX',
+						default:'$VTGLVL',
+						action:"generic /sys/devices/virtual/timed_output/vibrator/vtg_level"
+					}},'
+			fi`
+			`if [ -f "/sys/class/misc/vibratorcontrol/vibrator_strength" ]; then
+			VIBRATOR=\`$BB cat /sys/class/misc/vibratorcontrol/vibrator_strength\`
+				$BB echo '{ SPane:{
+					title:"Vibrator Strength VC"
+				}},
+					{ SSeekBar:{
+						description:"Allows to set the intensity of the vibrator.",
+						step:1,
+						min:1000,
+						max:1600,
+						default:'$VIBRATOR',
+						action:"generic /sys/class/misc/vibratorcontrol/vibrator_strength"
+					}},'
+			fi`
+			`if [ -f "/sys/vibrator/pwmvalue" ]; then
+			VIBRATOR=\`$BB cat /sys/vibrator/pwmvalue\`
+				$BB echo '{ SPane:{
+					title:"Vibrator Strength PWM"
+				}},
+					{ SSeekBar:{
+						description:"Allows to set the intensity of the vibrator.",
+						step:1,
+						min:1,
+						max:127,
+						default:'$VIBRATOR',
+						action:"generic /sys/vibrator/pwmvalue"
+					}},'
+			fi`
+			`if [ -f "/sys/kernel/fast_charge/force_fast_charge" ] && [ ! -f "/sys/kernel/fast_charge/fast_charge_level" ]; then
+			FC=\`$BB cat /sys/kernel/fast_charge/force_fast_charge\`
+				$BB echo '{ SPane:{
+				title:"Fast Charge"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"If enabled, device will charge faster. Depends on kernel For USB use 900mA as MAX, For wallcharger use up to 2500mA. NOTE: Enabling this will disable access to phone storage via USB.",
+						default:'$FC',
+						action:"generic /sys/kernel/fast_charge/force_fast_charge"
+					}},'
+			fi`
+			`if [ -f "/sys/kernel/fast_charge/force_fast_charge" ] && [ -f "/sys/kernel/fast_charge/fast_charge_level" ]; then
+			FC=\`$BB cat /sys/kernel/fast_charge/force_fast_charge\`
+			FCL=\`$BB cat /sys/kernel/fast_charge/fast_charge_level\`
+				$BB echo '{ SPane:{
+				title:"USB Fast Charge"
+				}},
+					{ SOptionList:{
+						title:"Enable",
+						description:"If enabled, device will charge faster when connected through USB, use custom for different voltage below. NOTE: Enabling this will disable access to phone storage via USB.",
+						default:'$FC',
+						action:"generic /sys/kernel/fast_charge/force_fast_charge",
+						values:{
+							0:"Disabled", 1:"Enable", 2:"Custom"
+						}
+					}},
+					{ SSeekBar:{
+						title:"Fast Charge Level",
+						description:"Fast charge voltage configuration. For USB 2.0 use 500mA as MAX, for USB 3.0 use 900mA as MAX, For wallcharger use 1500mA as MAX. WARNING: Incorrect use of voltage could damage your phone or USB ports.",
+						default:'$FCL',
+						action:"generic /sys/kernel/fast_charge/fast_charge_level",
+						values:{ 0:"Disabled",'
+							for CHARGE in \`$BB cat /sys/kernel/fast_charge/available_charge_levels\`; do
+								$BB echo "$CHARGE:\"${CHARGE} mA\", ";
+							done;
+						$BB echo '}
+					}},'
+			fi`
+			`if [ -f "/sys/module/msm_otg/parameters/otg_hack_enable" ]; then
+			OTG=\`$BB cat /sys/module/msm_otg/parameters/otg_hack_enable\`
+				$BB echo '{ SPane:{
+					title:"USB OTG (On-The-Go)"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enabling this allows for OTG operation. More info: <a href='http://forum.xda-developers.com/nexus-4/orig-development/usb-otg-externally-powered-usb-otg-t2181820'>HERE</a>",
+						default:'$OTG',
+						action:"generic /sys/module/msm_otg/parameters/otg_hack_enable"
+					}},'
+			fi`
+			`if [ -f "/sys/module/msm_otg/parameters/usbhost_charge_mode" ]; then
+			USB=\`bool /sys/module/msm_otg/parameters/usbhost_charge_mode\`
+				$BB echo '{ SPane:{
+					title:"USB Host Mode Charging"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enabling this allows for OTG operation.",
+						default:'$USB',
+						action:"boolean /sys/module/msm_otg/parameters/usbhost_charge_mode"
+					}},'
+			fi`
+			`if [ -f "/sys/class/misc/batterylifeextender/charging_limit" ]; then
+				BLX=\`$BB cat /sys/class/misc/batterylifeextender/charging_limit\`
+				$BB echo '{ SPane:{
+					title:"Battery Life Extender (BLX)"
+				}},
+					{ SSeekBar:{
+						description:"Limit the capacity to which the battery will be charged.",
+						unit:"%",
+						step:1,
+						min:0,
+						max:100,
+						default:'$BLX',
+						action:"generic /sys/class/misc/batterylifeextender/charging_limit"
+					}},'
+			fi`
+			`if [ -f "/sys/devices/i2c-0/0-006a/float_voltage" ]; then
+				BLX=\`$BB cat /sys/devices/i2c-0/0-006a/float_voltage\`
+				$BB echo '{ SPane:{
+					title:"Battery Life Extender (BLX)"
+				}},
+					{ SSeekBar:{
+						description:"Limit the capacity to which the battery will be charged.",
+						default:'$BLX',
+						action:"generic /sys/devices/i2c-0/0-006a/float_voltage",
+						values:{ 4000:"4.0V", 4100:"4.1V", 4200:"4.2V"
+						}
+					}},'
+			fi`
+			`if [ -f "/sys/devices/virtual/input/lge_touch/accuracy" ] && [ -n "\`cat /sys/devices/virtual/input/lge_touch/accuracy 2> /dev/null\`" ]; then
+				$BB echo '{ SPane:{
+					title:"Touchscreen Accuracy Filter",
+					description:"Allows you to set the accuracy & sensitivity of the touchscreen. First select your preferred settings and then enable."
+				}},'
+					for TOUCH in 1; do
+						$BB echo '{ SCheckBox:{'
+							case $TOUCH in
+								1) 
+									$BB echo 'label:"Enable Accuracy Filter", default:0' ;;
+							esac
+						$BB echo ', action:"touch '${TOUCH}'",
+						}},'
+					done;	
+					for TOUCH in 2 3 4 5 6 7; do
+						$BB echo '{ SSeekBar:{'
+							case $TOUCH in
+								2)
+									$BB echo 'title:"Ignore Pressure Gap", default:5' ;;
+								3)
+									$BB echo 'title:"Delta Max", default:100' ;;
+								4)
+									$BB echo 'title:"Touch Max Count", default:40' ;;
+								5)
+									$BB echo 'title:"Max Pressure", default:255' ;;
+								6)
+									$BB echo 'title:"Direction Count", default:13' ;;
+								7)
+									$BB echo 'title:"Time To Max Pressure", default:4' ;;
+							esac
+							$BB echo ', action:"touch '${TOUCH}'",
+							min:0,
+							max:255
+						}},'
+					done;
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_msm_hsic_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_msm_hsic_ws\`;
+				$BB echo '{ SPane:{
+					title:"Msm_hsic_host wakelock",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable msm_hsic_host wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_msm_hsic_ws"
+					}},'
+			fi`
+		]
+}
+CTAG

@@ -1,0 +1,556 @@
+cat << CTAG
+{
+	name:ADV,
+		elements:[
+			`[ -d "/sys/module/pm_8x60" ] && PM=/sys/module/pm_8x60;
+			[ -d "/sys/module/msm_pm" ] && PM=/sys/module/msm_pm;
+			
+			if [ -d "$PM/modes/cpu0" ]; then
+				$BB echo '{ SPane:{
+					title:"Krait C-States Settings"
+				}},'
+				if [ -f "$PM/modes/cpu0/wfi/idle_enabled" ]; then
+				C0=\`$BB cat $PM/modes/cpu0/wfi/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Shallowest Sleep with instant wake up.",
+						label:"C0 (WFI)",
+						default:'$C0',
+						action:"socset '$PM'/modes/cpu0/wfi/idle_enabled wfi"
+					}},'
+				fi
+				if [ -f "$PM/modes/cpu0/retention/idle_enabled" ]; then
+				C1=\`$BB cat $PM/modes/cpu0/retention/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Slightly deeper sleep with slight latency when waking up. (Disable this if you encounter screen flickering)",
+						label:"C1 (Retention)",
+						default:'$C1',
+						action:"socset '$PM'/modes/cpu0/retention/idle_enabled retention"
+					}},'
+				fi
+				if [ -f "$PM/modes/cpu0/standalone_power_collapse/idle_enabled" ]; then
+				C2=\`$BB cat $PM/modes/cpu0/standalone_power_collapse/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Deeper sleep with longer latency when waking up.",
+						label:"C2 (Stand Alone Power Collapse)",
+						default:'$C2',
+						action:"socset '$PM'/modes/cpu0/standalone_power_collapse/idle_enabled standalone_power_collapse"
+					}},'
+				fi
+				if [ -f "$PM/modes/cpu0/power_collapse/idle_enabled" ]; then
+				C3=\`$BB cat $PM/modes/cpu0/power_collapse/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Really deep sleep with longest latency when waking up.",
+						label:"C3 (Power Collapse)",
+						default:'$C3',
+						action:"socset '$PM'/modes/cpu0/power_collapse/idle_enabled power_collapse"
+					}},'
+				fi
+			fi`
+			`if [ -f "/sys/kernel/mm/ksm/run" ]; then
+			KSM=\`$BB cat /sys/kernel/mm/ksm/run\`
+			PTS=\`$BB cat /sys/kernel/mm/ksm/pages_to_scan\`
+			SLEEP=\`$BB cat /sys/kernel/mm/ksm/sleep_millisecs\`
+				$BB echo '{ SPane:{
+					title:"Kernel Samepage Merging"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"KSM lets the hypervisor system share identical memory pages amongst different processes or virtualized guests. This increases CPU consumption but improves memory.",
+						default:'$KSM',
+						action:"generic /sys/kernel/mm/ksm/run"
+					}},'
+					if [ -f "/sys/kernel/mm/ksm/deferred_timer" ]; then
+					DT=\`$BB cat /sys/kernel/mm/ksm/deferred_timer\`
+						$BB echo '{ SCheckBox:{
+							label:"Deferred Timer",
+							description:"If enabled, KSM thread will not wakeup CPU to carryout activities thus gaining battery while compromising slightly on memory that could have been saved.",
+							default:'$DT',
+							action:"generic /sys/kernel/mm/ksm/deferred_timer"
+						}},'
+					fi
+					$BB echo '{ SSeekBar:{
+						title:"Pages To Scan",
+						unit:" pages",
+						step:4,
+						min:4,
+						max:1024,
+						default:'$PTS',
+						action:"generic /sys/kernel/mm/ksm/pages_to_scan"
+					}},
+					{ SSeekBar:{
+						title:"Scan Delay Interval",
+						unit:" ms",
+						step:50,
+						min:50,
+						max:3000,
+						default:'$SLEEP',
+						action:"generic /sys/kernel/mm/ksm/sleep_millisecs"
+					}},'
+			fi`
+			`if [ -f "/sys/kernel/mm/uksm/run" ]; then
+			UKSM=\`$BB cat /sys/kernel/mm/uksm/run\`
+			SLEEP=\`$BB cat /sys/kernel/mm/uksm/sleep_millisecs\`
+			UKSMGOV=\`$BB echo $($UKM/actions/bracket-option /sys/kernel/mm/uksm/cpu_governor)\`
+			MAXCPU=\`$BB cat /sys/kernel/mm/uksm/max_cpu_percentage\`
+				$BB echo '{ SPane:{
+					title:"Ultra Kernel Samepage Merging"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"UKSM lets the hypervisor system share identical memory pages amongst different processes or virtualized guests. UKSM has a better algorithm than KSM.",
+						default:'$UKSM',
+						action:"generic /sys/kernel/mm/uksm/run"
+					}},
+					{ SSeekBar:{
+						title:"Sleep",
+						description:"How long will the daemon sleep before it wakes up and starts scanning memory pages.",
+						unit:" ms",
+						step:100,
+						min:0,
+						max:3000,
+						default:'$SLEEP',
+						action:"generic /sys/kernel/mm/uksm/sleep_millisecs"
+					}},
+					{ SOptionList:{
+						title:"CPU Governor",
+						description:"Controls how aggressively the daemon uses CPU power. This sets a preset for the maximum CPU consumption below.",
+						default:'$UKSMGOV',
+						action:"bracket-option /sys/kernel/mm/uksm/cpu_governor",
+						values:['
+							for UGOV in \`$BB cat /sys/kernel/mm/uksm/cpu_governor | $BB sed -e "s/\]//;s/\[//"\`; do
+								$BB echo "\"$UGOV\",";
+							done;
+						$BB echo '],
+						notify:[
+							{
+								on:APPLY,
+								do:[ REFRESH, APPLY ],
+								to:"generic /sys/kernel/mm/uksm/max_cpu_percentage"
+							},
+						]
+					}},
+					{ SSeekBar:{
+						title:"Max CPU Consumption",
+						description:"The maximum CPU consumption the daemon will use while scanning. Higher = better scanning (more battery drain).",
+						unit:"%",
+						step:1,
+						min:10,
+						max:99,
+						default:'$MAXCPU',
+						action:"generic /sys/kernel/mm/uksm/max_cpu_percentage"
+					}},'
+			fi`
+			`if [ -f "/sys/kernel/sched/arch_power" ]; then
+			APOWER=\`$BB cat /sys/kernel/sched/arch_power\`
+				$BB echo '{ SPane:{
+					title:"Arch Power"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Arch Power uses arch dependent power functions to be used instead of generic high resolution timer ticks and double ticks to reflect the relative capacity of each core.",
+						default:'$APOWER',
+						action:"generic /sys/kernel/sched/arch_power"
+					}},'
+			fi`
+			`if [ -f "/sys/module/lowmemorykiller/parameters/minfree" ]; then
+				$BB echo '{ SPane:{
+					title:"Low Memory Killer",
+					description:"LMK Minfree controls how much memory each app type can hold, and is responsible for memory management for multitasking."
+				}},
+					{ SOptionList:{
+						title:"LMK Profile",
+						description:"This option will auto-tune LMK minfree values as per selected profile.",
+						default:Custom,
+						action:"lmk profile",
+						values:[ Custom, Low, Medium, Default, Aggressive, Exterminate,
+						],
+						notify:[
+								{
+									on:APPLY,
+									do:[ REFRESH, APPLY ],
+									to:[ 
+											"lmk 1",
+											"lmk 2",
+											"lmk 3",
+											"lmk 4",
+											"lmk 5",
+											"lmk 6"
+									],
+								}
+						]
+					}},'
+					for LMK in 1 2 3 4 5 6; do
+						$BB echo '{ SSeekBar:{ '
+							case $LMK in
+								1)
+									$BB echo 'title:"Foreground App", description:"The application currenty on the screen and running."' ;;
+								2)
+									$BB echo 'title:"Visible App", description:"The application that is open and running in background."' ;;
+								3)
+									$BB echo 'title:"Secondary Server", description:"This is a service an application needs that is alive and ready."' ;;
+								4)
+									$BB echo 'title:"Hidden App", description:"An idle process that wakes up on application request."' ;;
+								5)
+									$BB echo 'title:"Content Provider", description:"Apps that provide data (content) to the system."' ;;
+								6)
+									$BB echo 'title:"Empty App", description:"Apps closed by the user but ready to run."' ;;
+							esac
+						$BB echo ', action:"lmk '${LMK}'",
+						unit:"MB", min:1, max:300 }},'
+					done
+			fi`
+			`if [ -f "/sys/module/lowmemorykiller/parameters/enable_adaptive_lmk" ] && [ -f "/sys/module/lowmemorykiller/parameters/vmpressure_file_min" ]; then
+				AUTO=\`$BB cat /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk\`
+				VMP=\`$BB cat /sys/module/lowmemorykiller/parameters/vmpressure_file_min\`
+					$BB echo '{ SCheckBox:{
+						label:"Adaptive LMK",
+						description:"The basic idea here is to make LMK more aggressive dynamically when such a thrashing scenario is detected. To detect thrashing, this patch uses vmpressure events. The values of vmpressure upon which an action has to be taken, was derived empirically.",
+						default:'$AUTO',
+						action:"generic /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk"
+					}},
+					{ SSeekBar:{
+						title:"VMPressure file min",
+						description:"This parameter controls the behaviour of LMK when vmpressure is in the range of 90-94. Adaptive lmk triggers based on number file pages wrt vmpressure_file_min, when vmpressure is in the range of 90-94. Usually this is a pseudo minfree value, higher than the highest configured value in minfree array.",
+						unit:" pages",
+						step:1,
+						min:0,
+						max:100,
+						default:'$VMP',
+						action:"generic /sys/module/lowmemorykiller/parameters/vmpressure_file_min"
+					}},'
+			fi`
+			`if [ -f "/sys/module/workqueue/parameters/power_efficient" ]; then
+				PE=\`bool /sys/module/workqueue/parameters/power_efficient\`
+					$BB echo '{ SPane:{
+						title:"Power-efficient Workqueues",
+					}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"This will help to reduce power consumption at the cost of slight performance overhead. PE workqueues are used for unbound scheduled work to save load on sibling CPU cores and queuing work on CPU0.",
+						default:'$PE',
+						action:"boolean /sys/module/workqueue/parameters/power_efficient",
+					}},'
+			fi`
+			`if [ -f "/sys/module/sync/parameters/fsync_enabled" ]; then
+			FSYNC=\`bool /sys/module/sync/parameters/fsync_enabled\`
+				$BB echo '{ SPane:{
+					title:"FSYNC"
+				}},
+					{ SCheckBox:{
+						description:"Disable the sync operations of the filesystem, great increasing speed but decreasing data integrity, also could create reboot and kernel panic.",
+						label:"Enable",
+						default:'$FSYNC',
+						action:"boolean /sys/module/sync/parameters/fsync_enabled"
+					}},'
+			fi`
+			`if [ -f "/sys/class/misc/fsynccontrol/fsync_enabled" ]; then
+			FSYNC=\`$BB cat /sys/class/misc/fsynccontrol/fsync_enabled\`
+				$BB echo '{ SPane:{
+					title:"FSYNC"
+				}},
+					{ SCheckBox:{
+						description:"Disable the sync operations of the filesystem, great increasing speed but decreasing data integrity, also could create reboot and kernel panic.",
+						label:"Enable",
+						default:'$FSYNC',
+						action:"generic /sys/class/misc/fsynccontrol/fsync_enabled"
+					}},'
+			fi`
+			`if [ -f "/sys/kernel/dyn_fsync/Dyn_fsync_active" ]; then
+			FSYNC=\`$BB cat /sys/kernel/dyn_fsync/Dyn_fsync_active\`
+				$BB echo '{ SPane:{
+					title:"Dynamic FSYNC"
+				}},
+					{ SCheckBox:{
+						description:"While screen is on, file sync is temporarily deferred. When screen is off, a flush is called to synchronize all outstanding writes.",
+						label:"Enable",
+						default:'$FSYNC',
+						action:"generic /sys/kernel/dyn_fsync/Dyn_fsync_active"
+					}},'
+			fi`
+			`if [ -f "/sys/kernel/sched/gentle_fair_sleepers" ]; then
+			GFS=\`$BB cat /sys/kernel/sched/gentle_fair_sleepers\`
+			
+				$BB echo '{ SPane:{
+					title:"Gentle Fair Sleepers"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Sleeper Fairness is a concept used by CFS which treat sleeping/waiting tasks as if they were in a run queue. This implies tasks which spend most of the time waiting for an user input and such will get a fair share of CPU when they need it. Disabling Gentle Fair Sleepers could improve UI responsiveness.",
+						default:'$GFS',
+						action:"generic /sys/kernel/sched/gentle_fair_sleepers"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_ipa_ws" ]; then
+				WSI=\`bool /sys/module/wakeup/parameters/enable_ipa_ws\`;
+				$BB echo '{ SPane:{
+						title:"Wakelock Control",
+						description:"Wakelocks are power-managing software mechanisms, which make sure that your Android device does not go into deep sleep. It is an advanced feature so you have to pay close attention how use it."
+					}},
+					{ SSpacer:{
+						height: 1
+					}},
+					{ SCheckBox:{
+						label:"Wakelock Enabled",
+						description:"If disabled skip - ipa_ws wakelock",
+						default:'$WSI',
+						action:"boolean /sys/module/wakeup/parameters/enable_ipa_ws"
+					}},'
+			fi`
+            `if [ -f "/sys/module/wakeup/parameters/enable_msm_hsic_ws" ]; then
+                WHSIC=\`bool /sys/module/wakeup/parameters/enable_msm_hsic_ws\`;
+                $BB echo '{ SSpacer:{
+                        height: 1
+                    }},
+                    { SCheckBox:{
+                        label:"Wakelock Enabled",
+                        description:"If disabled skip - msm_hsic - (Modem)",
+                        default:'$WHSIC',
+                        action:"boolean /sys/module/wakeup/parameters/enable_msm_hsic_ws"
+                    }},'
+            fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_bluesleep_ws" ]; then
+				WBS=\`bool /sys/module/wakeup/parameters/enable_bluesleep_ws\`;
+				$BB echo '{ SSpacer:{
+						height: 1
+					}},
+					{ SCheckBox:{
+						label:"Wakelock Enabled",
+						description:"If disabled skip - bluesleep - (Bluetooth)",
+						default:'$WBS',
+						action:"boolean /sys/module/wakeup/parameters/enable_bluesleep_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_wlan_wake_ws" ]; then
+				WWWKE=\`bool /sys/module/wakeup/parameters/enable_wlan_wake_ws\`;
+				$BB echo '{ SSpacer:{
+                                                height: 1
+                                        }},
+                                        { SCheckBox:{
+						label:"Wakelock Enabled",
+						description:"If disabled skip - wlan_wake - (Wifi)",
+						default:'$WWWKE',
+						action:"boolean /sys/module/wakeup/parameters/enable_wlan_wake_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_wlan_rx_wake_ws" ]; then
+				WWRX=\`bool /sys/module/wakeup/parameters/enable_wlan_rx_wake_ws\`;
+				$BB echo '{ SSpacer:{
+						height: 1
+					}},
+					{ SCheckBox:{
+						label:"Wakelock Enabled",
+						description:"If disabled skip - wlan_rx - (Wifi)",
+						default:'$WWRX',
+						action:"boolean /sys/module/wakeup/parameters/enable_wlan_rx_wake_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/bcmdhd/parameters/wlrx_divide" ]; then
+				WWLRX=\`$BB cat /sys/module/bcmdhd/parameters/wlrx_divide\`;
+				$BB echo '{ SSeekBar:{
+						title:"Only If Enabled",
+						description:"  We can control and reduced wakelock by dividing the timeout.",
+						min:1,
+						max:8,
+						step:1,
+						default:'$WWLRX',
+						action:"generic /sys/module/bcmdhd/parameters/wlrx_divide"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_wlan_ctrl_wake_ws" ]; then
+				WWCTRL=\`bool /sys/module/wakeup/parameters/enable_wlan_ctrl_wake_ws\`;
+				$BB echo '{ SCheckBox:{
+						label:"Wakelock Enabled",
+						description:"If disabled skip - wlan_ctrl - (Wifi)",
+						default:'$WWCTRL',
+						action:"boolean /sys/module/wakeup/parameters/enable_wlan_ctrl_wake_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/bcmdhd/parameters/wlctrl_divide" ]; then
+				WWLCTRL=\`$BB cat /sys/module/bcmdhd/parameters/wlctrl_divide\`;
+				$BB echo '{ SSeekBar:{
+						title:"Only if Enabled",
+						description:"  We can control and reduced wakelock by dividing the timeout.",
+						min:1,
+						max:8,
+						step:1,
+						default:'$WWLCTRL',
+						action:"generic /sys/module/bcmdhd/parameters/wlctrl_divide"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_msm_hsic_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_msm_hsic_ws\`;
+				$BB echo '{ SPane:{
+					title:"Msm_hsic_host wakelock",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable msm_hsic_host wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_msm_hsic_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_netlink_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_netlink_ws\`;
+				$BB echo '{ SPane:{
+					title:"Netlink_ws wakelock",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable Netlink_ws wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_netlink_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_netmgr_wl_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_netmgr_wl_ws\`;
+				$BB echo '{ SPane:{
+					title:"Netmgr_wl_wss wakelock",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable netmgr_wl_ws wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_netmgr_wl_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_qcom_rx_wakelock_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_qcom_rx_wakelock_ws\`;
+				$BB echo '{ SPane:{
+					title:"Qcom_rx_wakelock_ws wakelock",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable qcom_rx_wakelock_ws wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_qcom_rx_wakelock_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_timerfd_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_timerfd_ws\`;
+				$BB echo '{ SPane:{
+					title:"Timerfd_ws wakelock",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable timerfd_ws wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_timerfd_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_wlan_extscan_wl_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_wlan_extscan_wl_ws\`;
+				$BB echo '{ SPane:{
+					title:"Wlan_extscan_wl_ws wakelock",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable wlan_extscan_wl_ws wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_wlan_extscan_wl_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_wlan_wow_wl_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_wlan_wow_wl_ws\`;
+				$BB echo '{ SPane:{
+					title:"Wlan_wow_wl_ws wakelock.",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable wlan_wow_wl_ws wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_wlan_wow_wl_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_wlan_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_wlan_ws\`;
+				$BB echo '{ SPane:{
+					title:"Wlan_ws wakelock.",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable wlan_ws wakelock.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_wlan_ws"
+					}},'
+			fi`
+			`if [ -f "/sys/module/wakeup/parameters/enable_bluedroid_timer_ws" ]; then
+			MHH=\`bool /sys/module/wakeup/parameters/enable_bluedroid_timer_ws\`;
+				$BB echo '{ SPane:{
+					title:"Bluedroid_timer_ws wakelock.",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable bluedroid_timer_ws.",
+						default:'$MHH',
+						action:"boolean /sys/module/wakeup/parameters/enable_bluedroid_timer_ws"
+					}},'
+			fi`
+			`if [ -d "/sys/class/leds" ]; then
+				$BB echo '{ SPane:{
+					title:"LED Control",
+					description:"Kernel trigger for LEDs. Using this might interfere with OS level LED management and vice versa.",
+				}},'
+				if [ -f "/sys/class/leds/blue/trigger" ]; then
+					$BB echo '{ SOptionList:{
+						title:"Blue",
+						default:none,
+						action:"bracket-option /sys/class/leds/blue/trigger",
+						values:['
+							for LEDS in \`$BB cat /sys/class/leds/blue/trigger | $BB sed -e "s/\]//;s/\[//"\`; do
+								$BB echo "\"$LEDS\",";
+							done;
+						$BB echo ']
+					}},'
+				fi
+				if [ -f "/sys/class/leds/green/trigger" ]; then
+					$BB echo '{ SOptionList:{
+						title:"Green",
+						default:none,
+						action:"bracket-option /sys/class/leds/green/trigger",
+						values:['
+							for LEDS in \`$BB cat /sys/class/leds/green/trigger | $BB sed -e "s/\]//;s/\[//"\`; do
+								$BB echo "\"$LEDS\",";
+							done;
+						$BB echo ']
+					}},'
+				fi
+				if [ -f "/sys/class/leds/red/trigger" ]; then
+					$BB echo '{ SOptionList:{
+						title:"Red",
+						default:none,
+						action:"bracket-option /sys/class/leds/red/trigger",
+						values:['
+							for LEDS in \`$BB cat /sys/class/leds/red/trigger | $BB sed -e "s/\]//;s/\[//"\`; do
+								$BB echo "\"$LEDS\",";
+							done;
+						$BB echo ']
+					}},'
+				fi
+				if [ -f "/sys/class/leds/lcd-backlight/trigger" ]; then
+					$BB echo '{ SOptionList:{
+						title:"LCD Backlight",
+						default:none,
+						action:"bracket-option /sys/class/leds/lcd-backlight/trigger",
+						values:['
+							for LEDS in \`$BB cat /sys/class/leds/lcd-backlight/trigger | $BB sed -e "s/\]//;s/\[//"\`; do
+								$BB echo "\"$LEDS\",";
+							done;
+						$BB echo ']
+					}},'
+				fi
+				if [ -f "/sys/class/leds/spotlight/trigger" ]; then
+					$BB echo '{ SOptionList:{
+						title:"Spotlight",
+						default:none,
+						action:"bracket-option /sys/class/leds/spotlight/trigger",
+						values:['
+							for LEDS in \`$BB cat /sys/class/leds/spotlight/trigger | $BB sed -e "s/\]//;s/\[//"\`; do
+								$BB echo "\"$LEDS\",";
+							done;
+						$BB echo ']
+					}},'
+				fi
+			fi`
+		]
+}
+CTAG

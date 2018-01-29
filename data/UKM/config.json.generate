@@ -52,6 +52,15 @@ cat << CTAG
 			$BB echo ','
 			. $UKM/config.json.generate.wake
 			$BB echo ','
+			. $UKM/config.json.generate.misc
+			$BB echo ','
+			. $UKM/config.json.generate.adv
+			$BB echo ','
+			. $UKM/config.json.generate.bprop
+			$BB echo ','
+			. $UKM/config.json.generate.tools
+			$BB echo ','
+			. $UKM/config.json.generate.profile
 		else
 			. $UKM/config.json.generate.error
 		fi`
