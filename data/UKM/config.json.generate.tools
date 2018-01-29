@@ -1,0 +1,205 @@
+cat << CTAG
+{
+	name:TOOLS,
+		elements:[
+			`if [ "\`sh $DEVICE HasBootloader\`" == "1" ] && [ -e "\`sh $DEVICE DirKernelIMG\`" ]; then
+				$BB echo '{ STitleBar:{
+					title:"Bootloader Status"
+				}},
+					{ SLiveLabel:{
+						refresh:3000,
+						action:"live Bootloader"
+					}},
+					{ SDescription:{
+						description:"Use this button to lock/unlock your bootloader without fastboot and data wipe."
+					}},
+					{ SButton:{
+						label:"Toggle Bootloader Status",
+						action:"devtools bootloader"
+					}},'
+			fi`
+			`if [ "\`sh $DEVICE HasTamperFlag\`" == "1" ] && [ -e "\`sh $DEVICE DirKernelIMG\`" ]; then
+				$BB echo '{ SDescription:{
+					description:"The bootloader sets a tamper flag if it has ever been unlocked/altered. The button below allows you to change this state."
+				}},
+					{ SButton:{
+						label:"Toggle Tamper Flag",
+						action:"devtools tamper"
+					}},'
+			fi`
+			{ SPane:{
+				title:"SELinux Status",
+				description:"Allows you to change your SELinux (Security-Enhanced Linux) Status from Enforcing (policy is enforced) to Permissive (prints warnings instead of enforcing).",
+			}},
+				{ SOptionList:{
+					default:`getenforce`,
+					action:"devtools selinux",
+					values:[ Enforcing, Permissive
+					],
+				}},
+			`if [ -f "/sys/module/selinux/parameters/force_audit" ]; then
+				FAUDIT=\`bool /sys/module/selinux/parameters/force_audit\`;
+					$BB echo '{ SCheckBox:{
+						label:"Force Audit",
+						description:"Enable for debugging SELinux driver.",
+						default:'$FAUDIT',
+						action:"boolean /sys/module/selinux/parameters/force_audit"
+					}},'
+			fi`
+			`if [ -f "/data/data/com.android.providers.settings/databases/settings.db" ]; then
+				$BB echo '{ SPane:{
+					title:"Preferred Network Mode",
+					description:"Use GSM_auto or CDMA_auto (depending on your network) to reduce the msm_hsic_host wakelock and save battery. More info <a href='"http://forum.xda-developers.com/showpost.php?p=6591742&postcount=2"'>HERE</a>.",
+				}},
+					{ SOptionList:{
+						default:0,
+						action:"sqlite PreferredNetworkMode",
+						values:{ 0:"WCDMA_preferred", 1:"GSM_only", 2:"WCDMA_only", 3:"GSM_auto", 4:"CDMA_auto", 5:"CDMA_only", 6:"EvDo_only",
+							7:"GSM_CDMA_auto", 8:"LTE_CDMA_auto", 9:"LTE_GSM_auto", 10:"LTE_GSM_CDMA_auto", 11:"LTE_only", 12:"LTE_WDCMA", 
+							13:"TD-SCDMA_only", 14:"TD-SCDMA_WCDMA", 15:"TD-SCDMA_LTE", 16:"TD-SCDMA_GSM", 17:"TD-SCDMA_GSM_LTE", 18:"TD-SCDMA_GSM_WCDMA",
+							19:"TD-SCDMA_WCDMA_LTE", 20:"TD-SCDMA_GSM_WDCMA_LTE", 21:"TD-SCDMA_GSM_WCDMA_CDMA_EvDo", 22:"TD-SCDMA_LTE_CDMA_EvDo_GSM_WCDMA"
+						},
+					}},'
+			fi`
+			{ SPane:{
+				title:"Advanced Tools"
+			}},
+				{ SDescription:{
+					description:"Use this button to defrag/reindex all databases found in /data & /sdcard, this increases database read/write performance. NOTE: This process can take from 1-2 minutes."
+				}},
+				{ SButton:{
+					label:"Optimize Databases",
+					action:"devtools optimizedb"
+				}},
+			{ SPane:{
+				title:"Log Creation"
+			}},
+				`if [ -f "/sys/module/logger/parameters/enabled" ]; then
+				LOGMODE=\`$BB cat /sys/module/logger/parameters/enabled\`
+					$BB echo '{ SOptionList:{
+						title:"Logcat Mode",
+						description:"Allows you to toggle the logcat mode.",
+						default:'$LOGMODE',
+						action:"generic /sys/module/logger/parameters/enabled",
+						values:{
+							0:"Disabled", 1:"Enabled"
+						}
+					}},'
+				fi`
+				`if [ -f "/sys/module/logger/parameters/log_mode" ]; then
+				LOGMODE=\`$BB cat /sys/module/logger/parameters/log_mode\`
+					$BB echo '{ SOptionList:{
+						title:"Log Mode",
+						description:"Allows you to toggle the log mode.",
+						default:'$LOGMODE',
+						action:"generic /sys/module/logger/parameters/log_mode",
+						values:{
+							0:"Enabled", 1:"Auto Suspend", 2:"Disabled"
+						}
+					}},'
+				fi`
+				`if [ -f "/sys/kernel/printk_mode/printk_mode" ]; then
+					$BB echo '{ SOptionList:{
+						title:"Kernel Logger",
+						description:"Allows you to toggle dmesg kernel logging.",
+						action:"printk /sys/kernel/printk_mode/printk_mode",
+						values:{
+							0:"Disabled", 1:"Enabled"
+						}
+					}},'
+				fi`
+			{ SDescription:{
+				description:"Save the logcat (App/system debug), dmesg (active kernel output) or last_ksmg (same as dmesg but from the last shutdown)."
+			}},
+				{ SButton:{
+					label:"Save logcat",
+					action:"devtools logcat"
+				}},
+				{ SButton:{
+					label:"Save dmesg",
+					action:"devtools dmesg"
+				}},
+				{ SButton:{
+					label:"Save last_kmsg",
+					action:"devtools kmsg"
+				}},
+			`if [ -e "\`sh $DEVICE DirKernelIMG\`" ]; then
+			KERNEL=\`sh $DEVICE DirKernelIMG\`
+				$BB echo '{ SPane:{
+					title:"Kernel"
+				}},
+					{ SOptionList:{
+						title:"Selected Image",
+						description:"Choose the image you want and apply your choice in Synapse before using the action buttons below.",
+						action:"restorebackup pickboot",
+						default:"None",
+						values:[ "None",'
+							for IMG in \`$UKM/actions/restorebackup listboot\`; do
+								echo "\"$IMG\","
+							done
+						$BB echo ']
+					}},
+					{ SButton:{
+						label:"Restore Selected Kernel",
+						action:"restorebackup flashboot '$KERNEL'"
+					}},
+					{ SButton:{
+						label:"Delete Selected Kernel",
+						action:"restorebackup delboot",
+						notify:[
+							{ on:APPLY,
+							do:[ RESET, REFRESH ],
+							to:"restorebackup pickboot"
+							}
+						]
+					}},
+					{ SGeneric:{
+						title:"Kernel Name",
+						default:"None",
+						action:"generic '$UKM'/files/bck_prof",
+					}},
+					{ SDescription:{
+						description:"First set a name above and apply. After this you can press the Backup Current Kernel button below."
+					}},
+					{ SButton:{
+						label:"Backup Current Kernel",
+						action:"restorebackup keepboot '$KERNEL'",
+						notify:[
+							{
+								on:APPLY,
+								do:[ REFRESH, APPLY ],
+								to:"generic '$UKM'/files/bck_prof"
+							}
+						]
+					}},'
+			fi`
+			{ SPane:{
+				title:"General Actions",
+				description:"To update/refresh lists, select Restart Synapse below. To clear data, select Clear Synapse Data (fixes most common issues)."
+			}},
+				{ SButton:{
+					label:"Restart Synapse",
+					action:"restorebackup restart"
+				}},
+				{ SButton:{
+					label:"Clear Synapse Data",
+					action:"devtools cleardata"
+				}},
+			{ STitleBar:{
+				title:"Reboot"
+			}},
+				{ SButton:{
+					label:"Reboot Device",
+					action:"devtools reboot"
+				}},
+				{ SButton:{
+					label:"Reboot to Recovery",
+					action:"devtools reboot recovery"
+				}},
+				{ SButton:{
+					label:"Reboot to Bootloader",
+					action:"devtools reboot bootloader"
+				}}
+		]
+}
+CTAG
