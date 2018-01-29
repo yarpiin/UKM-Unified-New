@@ -50,6 +50,8 @@ cat << CTAG
 			fi
 			. $UKM/config.json.generate.mem
 			$BB echo ','
+			. $UKM/config.json.generate.wake
+			$BB echo ','
 		else
 			. $UKM/config.json.generate.error
 		fi`

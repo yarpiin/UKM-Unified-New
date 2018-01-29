@@ -1,0 +1,486 @@
+cat << CTAG
+{
+	name:WAKE,
+		elements:[
+			{ SPane:{
+				title:"Apply from init.d"
+			}},
+				{ SCheckBox:{
+					label:"Enable",
+					description:"This creates a init.d script for any of the following wake options. This resolves the unresponsive screen when the setting is enabled on boot and before the user interacts with the device. NOTE: Enable this option first then enable which wake option you want to apply on init.d script below.",
+					default:0,
+					action:"wake $UKM/files/wake_prof",
+				}},
+			`if [ -f "/sys/devices/virtual/input/lge_touch/dt_wake_enabled" ]; then
+			DT2W=\`$BB cat /sys/devices/virtual/input/lge_touch/dt_wake_enabled\`
+				$BB echo '{ SPane:{
+					title:"DoubleTap2Wake",
+					description:"Allows you to wake the device by double tapping the screen (Causes more battery drain while in pocket). NOTE: Some of these profiles may not be available in your kernel.",
+				}},
+					{ SOptionList:{
+						default:'$DT2W',
+						action:"wake /sys/devices/virtual/input/lge_touch/dt_wake_enabled",
+						values:{ 0:"Disabled", 1:"Center (Default)", 2:"Full", 3:"Bottom half", 4:"Top half"
+						},'
+						if [ -f "/sys/devices/virtual/misc/touchwake/enabled" ]; then
+							$BB echo 'notify:[
+								{
+									on:SET,
+									do:[ REFRESH, APPLY ],
+									to:"wake /sys/devices/virtual/misc/touchwake/enabled"
+								}
+							]'
+						fi
+					$BB echo '}},'
+			fi`
+			`if [ -f "/sys/devices/virtual/misc/touchwake/enabled" ]; then
+			TW=\`$BB cat /sys/devices/virtual/misc/touchwake/enabled\`
+			TWD=\`$BB cat /sys/devices/virtual/misc/touchwake/delay\`
+				$BB echo '{ SPane:{
+					title:"Touch Wake"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to wake the device via one tap in the middle of the screen.",
+						default:'$TW',
+						action:"wake /sys/devices/virtual/misc/touchwake/enabled",'
+						if [ -f "/sys/devices/virtual/input/lge_touch/dt_wake_enabled" ]; then
+							$BB echo 'notify:[
+								{
+									on:SET,
+									do:[ REFRESH, APPLY ],
+									to:"wake /sys/devices/virtual/input/lge_touch/dt_wake_enabled"
+								}	
+							]'
+						fi
+					$BB echo '}},
+					{ SSeekBar:{
+						title:"Touch Wake Delay",
+						description:"Set a delay (until the touch controls will be disabled, after screen off). Value of 0 means the touch controls will be kept enabled indefinitely.",
+						unit:" sec",
+						step:1000,
+						min:0,
+						max:600000,
+						weight:0.001,
+						default:'$TWD',
+						action:"wake /sys/devices/virtual/misc/touchwake/delay"
+					}},'
+			fi`
+			`if [ -f "/sys/module/lge_touch_core/parameters/doubletap_to_wake" ] && [ ! -f "/sys/module/lge_touch_core/parameters/doubletap_pwrkey_suspend" ]; then
+			DT2W=\`$BB cat /sys/module/lge_touch_core/parameters/doubletap_to_wake\`
+				$BB echo '{ SPane:{
+					title:"DoubleTap2Wake"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to wake the device by double tapping the screen (Causes more battery drain while in pocket).",
+						default:'$DT2W',
+						action:"wake /sys/module/lge_touch_core/parameters/doubletap_to_wake"
+					}},'
+			fi`
+			`if [ -f "/sys/module/lge_touch_core/parameters/doubletap_to_wake" ] && [ -f "/sys/module/lge_touch_core/parameters/doubletap_pwrkey_suspend" ]; then
+			DT2W=\`bool /sys/module/lge_touch_core/parameters/doubletap_to_wake\`
+			DM=\`$BB cat /sys/module/lge_touch_core/parameters/debug_mask\`
+			PKS=\`bool /sys/module/lge_touch_core/parameters/doubletap_pwrkey_suspend\`
+			DTA=\`$BB cat /sys/module/lge_touch_core/parameters/doubletap_area\`
+			DTC=\`$BB cat /sys/module/lge_touch_core/parameters/doubletap_charger\`
+			DTD=\`$BB cat /sys/module/lge_touch_core/parameters/doubletap_delay\`
+			
+				$BB echo '{ SPane:{
+					title:"DoubleTap2Wake"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to wake the device by double tapping the screen (Causes more battery drain while in pocket).",
+						default:'$DT2W',
+						action:"boolean /sys/module/lge_touch_core/parameters/doubletap_to_wake"
+					}},
+					{ SCheckBox:{
+						label:"Debug Mask",
+						description:"Allows you to activate debug mask for DT2W operations.",
+						default:'$DM',
+						action:"generic /sys/module/lge_touch_core/parameters/debug_mask"
+					}},
+					{ SCheckBox:{
+						label:"Power Key Suspend",
+						description:"If enabled, disables screen wake controls when scren is turned off by power key.",
+						default:'$PKS',
+						action:"boolean /sys/module/lge_touch_core/parameters/doubletap_pwrkey_suspend"
+					}},
+					{ SOptionList:{
+						title:"Doubletap Area",
+						description:"Allows the selection of the area of the device screen to activate DoubleTap2Wake.",
+						default:'$DTA',
+						values:{ 0:"Full (Default)", 1:"Bottom half", 2:"Top half", 3:"Center"
+						},
+						action:"generic /sys/module/lge_touch_core/parameters/doubletap_area"
+					}},
+					{ SOptionList:{
+						title:"Doubletap Charger",
+						description:"Changes the behaviour of DoubleTap2Wake when the device is charging.",
+						default:'$DTC',
+						values:{ 0:"Normal (Default)", 1:"Normal + Enabled when charging", 2:"Only enabled when charging"
+						},
+						action:"generic /sys/module/lge_touch_core/parameters/doubletap_charger"
+					}},
+					{ SSeekBar:{
+						title:"Doubletap Delay",
+						description:"Maximum number of milliseconds between 2 taps",
+						unit:" ms",
+						step:50,
+						min:500,
+						max:1500,
+						default:'$DTD',
+						action:"generic /sys/module/lge_touch_core/parameters/doubletap_delay"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/doubletap2wake" ]; then
+			DT2W=\`$BB cat /sys/android_touch/doubletap2wake\`
+				$BB echo '{ SPane:{
+					title:"DoubleTap2Wake",
+					description:"Allows you to wake the device by double tapping the screen (Causes more battery drain while in pocket). NOTE: Some of these profiles may not be available in your kernel.",
+				}},
+					{ SOptionList:{
+						default:'$DT2W',
+						values:{ 0:"Disabled", 1:"Center (Default)", 2:"Full", 3:"Bottom half", 4:"Top half"
+						},
+						action:"wake /sys/android_touch/doubletap2wake"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/doubletap2wake_feather" ]; then
+			DT2WF=\`$BB cat /sys/android_touch/doubletap2wake_feather\`
+				$BB echo '{ SPane:{
+					title:"DoubleTap2Wake Feather",
+				}},
+					{ SSeekBar:{
+						description:"Used to control the allowed distance between tap #1 and tap #2. This will help with unintentional wakes quite a bit.",
+						min:50,
+						max:2560,
+						step:1,
+						default:'$DT2WF',
+						action:"wake /sys/android_touch/doubletap2wake_feather"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/sweep2wake" ]; then
+			S2W=\`$BB cat /sys/android_touch/sweep2wake\`
+				$BB echo '{ SPane:{
+					title:"Sweep2Wake",
+					description:"Allows you to wake the device by swiping on the navigation bar (Causes more battery drain while in pocket). NOTE: Some kernels do not support Sweep2Sleep Only.",
+				}},
+					{ SOptionList:{
+						default:'$S2W',
+						values:{ 0:"Disabled", 1:"Sweep2Wake+Sweep2Sleep", 2:"Sweep2Sleep Only"
+						},
+						action:"wake /sys/android_touch/sweep2wake",'
+						if [ -f "/sys/android_touch/s2w_s2sonly" ]; then
+							$BB echo 'notify:[
+								{
+									on:SET,
+									do:[ REFRESH, APPLY ],
+									to:"wake /sys/android_touch/s2w_s2sonly"
+								}
+							]'
+						fi
+					$BB echo '}},'
+			fi`
+			`if [ -f "/sys/android_touch/s2w_s2sonly" ]; then
+			S2S=\`$BB cat /sys/android_touch/s2w_s2sonly\`
+				$BB echo '{ SPane:{
+					title:"Sweep2Sleep"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to turn the screen off by swiping on the navigation bar.",
+						default:'$S2S',
+						action:"wake /sys/android_touch/s2w_s2sonly"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/sweep2dim" ]; then
+			S2D=\`$BB cat /sys/android_touch/sweep2dim\`
+				$BB echo '{ SPane:{
+					title:"Sweep2Dim"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to dim the brightness by swiping to the left (- brightness) & right (+ brightness) on the navigation bar.",
+						default:'$S2D',
+						action:"wake /sys/android_touch/sweep2dim",
+					}},'
+			fi`
+			`if [ -f "/sys/module/sweep2wake/parameters/down_kcal" ]; then
+			S2DD=\`$BB cat /sys/module/sweep2wake/parameters/down_kcal\`
+				$BB echo '{ SSeekBar:{
+					title:"Sweep2Dim Down",
+					description:"Configure how many points a sweep to the left will brighten your display.",
+					min:1,
+					max:255,
+					step:1,
+					default:'$S2DD',
+					action:"wake /sys/module/sweep2wake/parameters/down_kcal"
+				}},'
+			fi`
+			`if [ -f "/sys/module/sweep2wake/parameters/up_kcal" ]; then
+			S2DU=\`$BB cat /sys/module/sweep2wake/parameters/up_kcal\`
+				$BB echo '{ SSeekBar:{
+					title:"Sweep2Dim Up",
+					description:"Configure how many points a sweep to the right will brighten your display.",
+					min:1,
+					max:255,
+					step:1,
+					default:'$S2DU',
+					action:"wake /sys/module/sweep2wake/parameters/up_kcal"
+				}},'
+			fi`
+			`if [ -f "/sys/android_touch/shortsweep" ]; then
+			SSWEEP=\`$BB cat /sys/android_touch/shortsweep\`
+				$BB echo '{ SCheckBox:{
+						label:"Enable Shortsweep",
+						description:"Enabling this makes sweep2wake work with a shorter sweep distance.",
+						default:'$SSWEEP',
+						action:"wake /sys/android_touch/shortsweep"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/sweep2sleep" ]; then
+			S2S=\`$BB cat /sys/android_touch/sweep2sleep\`
+				$BB echo '{ SPane:{
+					title:"Sweep2Sleep"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to turn the screen off by swiping on the navigation bar.",
+						default:'$S2S',
+						action:"wake /sys/android_touch/sweep2sleep"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/orientation" ]; then
+			S2SO=\`$BB cat /sys/android_touch/orientation\`
+				$BB echo '{ SPane:{
+					title:"Sweep2Sleep Orientation",
+					description:"Orientation mode for Sweep2Sleep.",
+				}},
+					{ SOptionList:{
+						default:'$S2SO',
+						action:"wake /sys/android_touch/orientation",
+						values:{ 0:"Any", 1:"Portrait Only", 2:"Landscape Only"
+						}
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/wake_timeout" ]; then
+			WT=\`$BB cat /sys/android_touch/wake_timeout\`
+				$BB echo '{ SPane:{
+					title:"Wake Timeout"
+				}},
+					{ SSeekBar:{
+						description:"Set a delay in minutes until the wake controls will be disabled, after screen off. Value of 0 means the touch controls will be kept enabled indefinitely.",
+						min:0,
+						max:30,
+						step:1,
+						default:'$WT',
+						action:"wake /sys/android_touch/wake_timeout"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/wake_gestures" ]; then
+			WG=\`$BB cat /sys/android_touch/wake_gestures\`
+				$BB echo '{ SPane:{
+					title:"Wake Gestures"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows assigning actions to be performed when particular wake gesture is triggered. More info: <a href='http://forum.xda-developers.com/xposed/modules/app-wake-gestures-v1-1-t2768266'>HERE</a>.",
+						default:'$WG',
+						action:"wake /sys/android_touch/wake_gestures"
+					}},'
+			fi`
+			`if [ -f "/sys/module/input_core/parameters/pwrkey_suspend" ]; then
+			PKS=\`bool /sys/module/input_core/parameters/pwrkey_suspend\`
+				$BB echo '{ SPane:{
+					title:"Power Key Suspend"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"If enabled, disables screen wake controls when scren is turned off by power key.",
+						default:'$PKS',
+						action:"boolean /sys/module/input_core/parameters/pwrkey_suspend"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/pwrkey_suspend" ]; then
+			PKSFLO=\`$BB cat /sys/android_touch/pwrkey_suspend\`
+				$BB echo '{ SPane:{
+					title:"Power Key Suspend"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"If enabled, disables screen wake controls when screen is turned off by power key.",
+						default:'$PKSFLO',
+						action:"generic /sys/android_touch/pwrkey_suspend"
+					}},'
+			fi`
+			`if [ -f "/sys/module/qpnp_power_on/parameters/pwrkey_suspend" ]; then
+			PKS=\`bool /sys/module/qpnp_power_on/parameters/pwrkey_suspend\`
+				$BB echo '{ SPane:{
+					title:"Power Key Suspend"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"If enabled, disables screen wake controls when screen is turned off by power key.",
+						default:'$PKS',
+						action:"boolean /sys/module/qpnp_power_on/parameters/pwrkey_suspend"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/vib_strength" ]; then
+			VIBRATOR=\`$BB cat /sys/android_touch/vib_strength\`
+				$BB echo '{ SPane:{
+					title:"Vibrator Strength for Wake Controls"
+				}},
+					{ SSeekBar:{
+						description:"Allows to set the intensity of the vibrator while using wake controls.",
+						unit:"%",
+						step:1,
+						min:0,
+						max:90,
+						default:'$VIBRATOR',
+						action:"generic /sys/android_touch/vib_strength"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/lid_suspend" ]; then
+			LIDSFLO=\`$BB cat /sys/android_touch/lid_suspend\`
+				$BB echo '{ SPane:{
+					title:"Lid Closed Suspend"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"If enabled, disables screen wake controls when lid is closed.",
+						default:'$LIDSFLO',
+						action:"generic /sys/android_touch/lid_suspend"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/tap2unlock" ]; then
+			T2U=\`$BB cat /sys/android_touch/tap2unlock\`
+			T2UP=\`$BB cat /sys/android_touch/tap2unlock_pattern\`
+				$BB echo '{ SPane:{
+					title:"Tap2Unlock"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to enable Tap2Unlock.",
+						default:'$T2U',
+						action:"generic /sys/android_touch/tap2unlock"
+					}},
+					{ SGeneric:{
+						title:"Pattern",
+						description:"Allows you to set the pattern to unlock the screen.",
+						default:'$T2UP',
+						action:"generic /sys/android_touch/tap2unlock_pattern",
+					}},'
+			fi`
+			`if [ -f "/sys/module/lid/parameters/enable_lid" ]; then
+			MLID=\`$BB cat /sys/module/lid/parameters/enable_lid\`
+				$BB echo '{ SPane:{
+					title:"Magnetic Sensor"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"If enabled, magnetic sensor turns off screen when lid is closed.",
+						default:'$MLID',
+						action:"generic /sys/module/lid/parameters/enable_lid"
+					}},'
+			fi`
+			`if [ -f "/proc/touchpanel/double_tap_enable" ]; then
+			DTOPO=\`$BB cat /proc/touchpanel/double_tap_enable\`
+				$BB echo '{ SPane:{
+					title:"DoubleTap2Wake"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to wake the device by double tapping the screen.",
+						default:'$DTOPO',
+						action:"generic /proc/touchpanel/double_tap_enable"
+					}},'
+			fi`
+			`if [ -f "/proc/touchpanel/sweep_wake_enable" ]; then
+			STWOPO=\`$BB cat /proc/touchpanel/sweep_wake_enable\`
+				$BB echo '{ SPane:{
+					title:"Sweep2Wake"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to wake the device by sweeping the screen.",
+						default:'$STWOPO',
+						action:"generic /proc/touchpanel/sweep_wake_enable"
+					}},'
+			fi`
+			`if [ -f "/proc/touchpanel/sweep_vol_enable" ]; then
+			STVOPO=\`$BB cat /proc/touchpanel/sweep_vol_enable\`
+				$BB echo '{ SPane:{
+					title:"Sweep2Volume"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to increase/decrease volume by sweeping the screen.",
+						default:'$STVOPO',
+						action:"generic /proc/touchpanel/sweep_vol_enable"
+					}},'
+			fi`
+			`if [ -f "/proc/touchpanel/camera_enable" ]; then
+			CTCOPO=\`$BB cat /proc/touchpanel/camera_enable\`
+				$BB echo '{ SPane:{
+					title:"Circle2Camera"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to open the camera by drawing a circle on the screen.",
+						default:'$CTCOPO',
+						action:"generic /proc/touchpanel/camera_enable"
+					}},'
+			fi`
+			`if [ -f "/proc/touchpanel/music_enable" ]; then
+			MTGOPO=\`$BB cat /proc/touchpanel/music_enable\`
+				$BB echo '{ SPane:{
+					title:"Gestures2Music"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to control music playback by gestures on the screen (Two Fingers vertically to play/pause, Draw left arrow to previous track, Draw right arrow for next track).",
+						default:'$MTGOPO',
+						action:"generic /proc/touchpanel/music_enable"
+					}},'
+			fi`
+			`if [ -f "/proc/touchpanel/flashlight_enable" ]; then
+			VTFOPO=\`$BB cat /proc/touchpanel/flashlight_enable\`
+				$BB echo '{ SPane:{
+					title:"V2Flashlight"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to open flashlight by drawing a V on the screen.",
+						default:'$VTFOPO',
+						action:"generic /proc/touchpanel/flashlight_enable"
+					}},'
+			fi`
+			`if [ -f "/proc/touchpanel/smartcover_mode_enable" ]; then
+			STCOPO=\`$BB cat /proc/touchpanel/smartcover_mode_enable\`
+				$BB echo '{ SPane:{
+					title:"Smart2Cover"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to enable the smartcover control.",
+						default:'$STCOPO',
+						action:"generic /proc/touchpanel/smartcover_mode_enable"
+					}},'
+			fi`
+			`if [ -f "/sys/devices/virtual/input/clearpad/wakeup_gesture" ]; then
+			WUG=\`$BB cat /sys/devices/virtual/input/clearpad/wakeup_gesture\`
+				$BB echo '{ SPane:{
+					title:"Wakeup Gesture"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Allows you to enable wakeup gesture.",
+						default:'$WUG',
+						action:"generic /sys/devices/virtual/input/clearpad/wakeup_gesture"
+					}},'
+			fi`
+		]
+}
+CTAG
