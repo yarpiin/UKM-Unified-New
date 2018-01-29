@@ -805,6 +805,9 @@ case "$1" in
 			$BB echo "CPU 2"
 			fi;
 	;;
+	LiveChargeCurrent)
+			$BB echo "mA: `$BB cat /sys/kernel/charge_levels/charge_info`"
+	;;
 	LiveKernelCurrent)
 			$BB echo "`$BB uname -r`"
 	;;

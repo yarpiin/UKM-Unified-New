@@ -74,4 +74,10 @@ case $1 in
 	;;
 	Memory)
 		$BB echo `sh $DEVICE LiveMemory`;
+	;;
+	ChargeCurrent)
+		$BB echo `sh $DEVICE LiveChargeCurrent`;
+	;;
+	StateNotifier)
+		$BB echo `sh $DEVICE LiveStateNotifier`;
 esac;
