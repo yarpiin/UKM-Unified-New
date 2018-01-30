@@ -1,8 +1,10 @@
 UKM=/data/UKM;
 BB=$UKM/busybox;
+
 if [ -f "/system/xbin/sqlite3" ]; then SQL3=/system/xbin/sqlite3; else SQL3=$UKM/sqlite3; fi;
 
-SYNAPSE_SD_DIR=/sdcard/Synapse;
+if [ -d "/data/UKM" ];then SYNAPSE_SD_DIR=/sdcard/Synapse; else SYNAPSE_SD_DIR=/storage/emulated/0/Synapse; fi;
+
 SYNAPSE_CONFIG_DIR=$SYNAPSE_SD_DIR/saved_configs;
 SYNAPSE_DATA=/data/data/com.af.synapse/databases;
 DISABLED_SETTINGS="'buildprop net.hostname', 'buildprop service.adb.tcp.port', 'devtools selinux', 'generic /data/UKM/files/bck_prof', 'sqlite PreferredNetworkMode'";
