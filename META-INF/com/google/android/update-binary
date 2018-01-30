@@ -68,6 +68,7 @@ set_perm_recursive 0 0 0755 0755 /data/UKM;
 set_perm_recursive 0 0 0755 0755 /system/xbin/uci;
 set_perm_recursive 0 0 0755 0755 /system/xbin/busybox;
 set_perm_recursive 0 0 0755 0755 /system/etc/init.d/UKM;
+set_perm_recursive 0 0 0755 0755 /system/xbin/sqlite3;
 mount -o remount,ro /system;
 ui_print " ";
 
