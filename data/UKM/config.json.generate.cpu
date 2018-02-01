@@ -6,8 +6,11 @@ cat << CTAG
 				title:"Info"
 			}},
 				{ SDescription:{
-					description:"CPU frequency scaling and governor control."
+					description:"CPU frequency scaling enables the operating system to scale the CPU frequency up or down in order to save power."
 				}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 				{ SLiveLabel:{
 						refresh:0,
 						style:italic,
@@ -23,7 +26,7 @@ cat << CTAG
 						height: 1
 				    	}},
 				{ SLiveLabel:{
-						refresh:800,
+						refresh:400,
 						style:italic,
 						action:"live CPUFrequency"
 					}},
