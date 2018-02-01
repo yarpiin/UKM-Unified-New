@@ -249,13 +249,13 @@ case "$1" in
 		$BB echo "/sys/devices/system/cpu/cpufreq";
 	;;
 	DirCPU1GovernorTree)
-		$BB echo "/sys/devices/system/cpu0/cpufreq";
+		$BB echo "/sys/devices/system/cpu/cpu0/cpufreq";
 	;;
 	DirCPU2GovernorTree)
-		$BB echo "/sys/devices/system/cpu2/cpufreq";
+		$BB echo "/sys/devices/system/cpu/cpu2/cpufreq";
 	;;
 	DirCPU3GovernorTree)
-		$BB echo "/sys/devices/system/cpu4/cpufreq";
+		$BB echo "/sys/devices/system/cpu/cpu4/cpufreq";
 	;;
 	SetCPUGovernor)
 		for CPU in /sys/devices/system/cpu/cpu[0-1]; do

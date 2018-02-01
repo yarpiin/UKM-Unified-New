@@ -117,9 +117,6 @@ cat << CTAG
 						]
 					}},'
 				fi`
-				{ SSpacer:{
-					height: 2
-				}},
 				{ STreeDescriptor:{
 					path:"`sh $DEVICE DirCPU1GovernorTree`",
 					generic: {
@@ -132,20 +129,13 @@ cat << CTAG
 									}
 								},
 								exclude: [ 
-									"boost_duration", "boostpulse", "cpu_utilization", "multi_phase_freq_tbl", "profile",
-									"up_threshold_h", "up_threshold_l", "version_profiles", "sampling_rate_current", "freq_limit",
-									"music_state", "inputboost_punch_cycles", "inputboost_punch_freq", "inputboost_punch_on_epenmove",
-									"inputboost_punch_on_fingerdown", "inputboost_punch_on_fingermove", "auto_adjust_freq_thresholds",
-									"version", "early_demand", "fast_scaling_up", "fast_scaling_down", "fast_scaling_sleep_up", "fast_scaling_sleep_down"
-									"scaling_up_block_freq", "scaling_block_freq", "inputboost_typingbooster_cores", "music_max_freq", "music_min_freq"
+									"boost_duration", "boostpulse", "cpu_utilization", "multi_phase_freq_tbl", "profile", "profile_list", "sampling_rate_min", 
+									"up_threshold_h", "up_threshold_l", "version_profiles"
 								]
 							},
 						}
 					},
 					exclude: [ "all_cpus", "kset", "overall_stats", "stats", "vdd_table" ]
-				}},
-				{ SSpacer:{
-						height: 1
 				}},
 		]
 }
