@@ -752,7 +752,7 @@ case "$1" in
 	;;
 	LiveCPUTemperature)
 	
-		CPU_C=/sys/class/thermal/thermal_zone5/temp;
+		CPU_C=/sys/class/thermal/thermal_zone7/temp;
 		CPUK=/sys/module/clock_cpu_8996;
 
 		if [ -d "$CPUK" ]; then
