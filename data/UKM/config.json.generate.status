@@ -1,0 +1,105 @@
+cat << CTAG
+{
+	name:STATUS,
+		elements:[
+			{ SPane:{
+				title:"Battery Temperature:"
+			}},
+				{ SLiveLabel:{
+					refresh:2000,
+					style:italic,
+					action:"live BatteryTemperature"
+				}},
+			{ SPane:{
+				title:"CPU Temperature:"
+			}},
+				{ SLiveLabel:{
+					refresh:2000,
+					style:italic,
+					action:"live CPUTemperature"
+				}},
+			{ SPane:{
+				title:"Memory:"
+			}},
+				{ SLiveLabel:{
+					refresh:2000,
+					style:italic,
+					action:"live Memory"
+				}},
+			{ SPane:{
+				title:"CPU Uptime:"
+			}},
+				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live UpTime"
+				}},
+			`if [ -d "/sys/devices/system/cpu/cpu4" ]; then
+				$BB echo '{ SPane:{
+					title:"CPU2 Uptime"
+				}},
+				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live UpTime2"
+				}},'
+			fi`
+			`if [ -d "/sys/module/clock_cpu_8996" ]; then
+				$BB echo '{ SPane:{
+					title:"CPU2 Uptime"
+				}},
+				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live UpTime1"
+				}},'
+			fi`
+			{ SPane:{
+				title:"Unused CPU States:"
+			}},
+				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live UnUsed"
+				}},
+			`if [ -d "/sys/devices/system/cpu/cpu4" ]; then
+				$BB echo '{ SPane:{
+					title:"Unused CPU2 States:"
+				}},
+				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live UnUsed2"
+				}},'
+			fi`
+			`if [ -d "/sys/module/clock_cpu_8996" ]; then
+				$BB echo '{ SPane:{
+					title:"Unused CPU2 States:"
+				}},
+				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live UnUsed1"
+				}},'
+			fi`
+			`if [ -f "/proc/wakelocks" ]; then
+				$BB echo '{ SPane:{
+					title:"Kernel Wakelocks (Top 10):"
+				}},
+					{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live WakelocksKernel"
+					}},'
+			fi`
+			{ SPane:{
+				title:"Installation Check:"
+			}},
+				{ SLiveLabel:{
+					refresh:0,
+					style:italic,
+					action:"live InstallationCheck"
+				}},
+		]
+}
+CTAG
