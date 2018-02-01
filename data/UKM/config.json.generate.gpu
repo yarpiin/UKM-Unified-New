@@ -8,6 +8,9 @@ cat << CTAG
 				{ SDescription:{
 					description:"CPU frequency scaling and governor control."
 				}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 				{ SLiveLabel:{
 					refresh:0,
 					style:italic,
@@ -23,7 +26,7 @@ cat << CTAG
 						height: 1
 				    	}},
 				{ SLiveLabel:{
-					refresh:800,
+					refresh:400,
 					style:italic,
 					action:"live GPUFrequency"
 				}},
