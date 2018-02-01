@@ -6,13 +6,19 @@ cat << CTAG
                         title:"Info" 
                                 }},
 				{ SDescription:{
-					description:"Allows to adjust various LCD screen settings."
+					description:"Gamma Control is used to alter the output levels of a device LCD display."
 				}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 				{ SLiveLabel:{
 					refresh:0,
 					style:italic,
 					action:"live Gamma"
 				}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 			`if [ -d "/sys/devices/platform/kcal_ctrl.0" ]; then
 				if [ -f "/sys/devices/platform/kcal_ctrl.0/kcal" ]; then
 				KCAL=\`$BB cat /sys/devices/platform/kcal_ctrl.0/kcal\`;
@@ -526,9 +532,11 @@ cat << CTAG
 				fi
 				if [ -f "/sys/module/mdss_fb/parameters/backlight_min" ]; then
 				BMIN=\`$BB cat /sys/module/mdss_fb/parameters/backlight_min\`
-						$BB echo '{ SSeekBar:{
-							title:"Backlight Control",
-							description:"Minimum Backlight Level - Developed by Lord Boeffla",
+				    $BB echo '{ SPane:{
+					    title:"Backlight Control - Developed by Lord Boeffla",
+				    }},
+                        { SSeekBar:{
+							description:"Minimum Backlight Level",
 							min:0,
 							max:255,
 							step:1,
@@ -538,15 +546,14 @@ cat << CTAG
 				fi
 				if [ -f "/sys/module/mdss_fb/parameters/backlight_max" ]; then
 				BMAX=\`$BB cat /sys/module/mdss_fb/parameters/backlight_max\`
-						$BB echo '{ SSeekBar:{
-							title:"Backlight Control",
-							description:"Maximum Backlight Level - Developed by Lord Boeffla",
-							min:0,
-							max:255,
-							step:1,
-							default:'$BMAX',
-							action:"generic /sys/module/mdss_fb/parameters/backlight_max"
-						}},'
+				    $BB echo '{ SSeekBar:{
+							    description:"Maximum Backlight Level",
+							    min:0,
+							    max:255,
+							    step:1,
+							    default:'$BMAX',
+							    action:"generic /sys/module/mdss_fb/parameters/backlight_max"
+						  }},'
 				fi
 				if [ -f "/sys/devices/virtual/graphics/fb0/color_enhance" ]; then
 				CE=\`$BB cat /sys/devices/virtual/graphics/fb0/color_enhance\`;
