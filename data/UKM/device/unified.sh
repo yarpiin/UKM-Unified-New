@@ -883,4 +883,7 @@ case "$1" in
 	LiveMemory)
 			$BB echo "Vrtual Memory"
 	;;
+	LiveAdvanced)
+			$BB echo "Advanced Settings"
+	;;
 esac;

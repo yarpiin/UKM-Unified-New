@@ -2,6 +2,23 @@ cat << CTAG
 {
 	name:ADV,
 		elements:[
+			{ SPane:{
+				title:"Info"
+			}},
+				{ SDescription:{
+					description:"Various settings.Don't mess with them unless you know what you're doing."
+				}},
+				{ SSpacer:{
+						height: 1
+				    	}},
+				{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live Advanced"
+					}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 			`[ -d "/sys/module/pm_8x60" ] && PM=/sys/module/pm_8x60;
 			[ -d "/sys/module/msm_pm" ] && PM=/sys/module/msm_pm;
 			

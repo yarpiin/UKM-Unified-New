@@ -107,4 +107,7 @@ case $1 in
 	;;
 	InstallationCheck)
 		$BB echo `if [ ! -f "/system/etc/init.d/UKM" ]; then $BB echo "UKM file missing in init.d"; elif [ ! -f "/system/addon.d/UKM.sh" ]; then $BB echo "UKM.sh file missing in addon.d"; else $BB echo "All checks OK"; fi`;
+	;;
+	Advanced)
+		$BB echo `sh $DEVICE LiveAdvanced`;
 esac;
