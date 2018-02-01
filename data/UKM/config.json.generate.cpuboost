@@ -12,11 +12,17 @@ cat << CTAG
 					$BB echo '{ SPane:{
 							title:"CPU Boost Tunables"
 						}},
+				    { SSpacer:{
+						    height: 1
+				    	    }},
 					{ SLiveLabel:{
 						refresh:0,
 						style:italic,
 						action:"live CpuBoost"
-					}},'
+					}},
+				    { SSpacer:{
+						height: 1
+				    	}},'
 					if [ -f "/sys/module/cpu_boost/parameters/cpu_boost" ]; then
 					CPUBOOST=\`$BB cat /sys/module/cpu_boost/parameters/cpu_boost\`;
 						$BB echo '{ SCheckBox:{
