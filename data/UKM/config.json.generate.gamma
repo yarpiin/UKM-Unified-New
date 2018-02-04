@@ -533,7 +533,7 @@ cat << CTAG
 				if [ -f "/sys/module/mdss_fb/parameters/backlight_min" ]; then
 				BMIN=\`$BB cat /sys/module/mdss_fb/parameters/backlight_min\`
 				    $BB echo '{ SPane:{
-					    title:"Backlight Control - Developed by Lord Boeffla",
+					    title:"Boeffla Backlight Control",
 				    }},
                         { SSeekBar:{
 							description:"Minimum Backlight Level",

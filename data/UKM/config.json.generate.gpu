@@ -180,7 +180,7 @@ cat << CTAG
 				if [ -f "/sys/devices/soc.0/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost" ]; then
 				ADB=\`$BB cat /sys/devices/soc.0/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost\`
 					$BB echo '{ SOptionList:{
-						description:"Gpu scaling driver .",
+						description:"Smooth gaming, battery friendly, Gpu scaling driver .",
 						default:'$ADB',
 						action:"generic /sys/devices/soc.0/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost",
 						values:{
@@ -191,7 +191,7 @@ cat << CTAG
 				if [ -f "/sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost" ]; then
 				ADB=\`$BB cat /sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost\`
 					$BB echo '{ SOptionList:{
-						description:"Gpu scaling driver .",
+						description:"Smooth gaming, battery friendly, Gpu scaling driver .",
 						default:'$ADB',
 						action:"generic /sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/adrenoboost",
 						values:{
@@ -202,7 +202,7 @@ cat << CTAG
 				if [ -f "/sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/adrenoboost" ]; then
 				ADB=\`$BB cat /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/adrenoboost\`
 					$BB echo '{ SOptionList:{
-						description:"Gpu scaling driver .",
+						description:"Smooth gaming, battery friendly, Gpu scaling driver .",
 						default:'$ADB',
 						action:"generic /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/adrenoboost",
 						values:{
@@ -213,7 +213,7 @@ cat << CTAG
 				if [ -f "/sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost" ]; then
 				ADB=\`$BB cat /sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost\`
 					$BB echo '{ SOptionList:{
-						description:"Gpu scaling driver .",
+						description:"Smooth gaming, battery friendly, Gpu scaling driver .",
 						default:'$ADB',
 						action:"generic /sys/class/kgsl/kgsl-3d0/devfreq/adrenoboost",
 						values:{
