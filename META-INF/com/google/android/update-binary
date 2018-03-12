@@ -64,6 +64,7 @@ cp -fvr /tmp/synapse/data/* /data;
 cp -f /tmp/synapse/data/UKM/uci /system/xbin/uci;
 cp -f /tmp/synapse/data/UKM/busybox /system/xbin/busybox;
 cp -f /tmp/synapse/data/UKM/UKM /system/etc/init.d/UKM;
+cp -f /tmp/synapse/data/UKM/sqlite3 /system/xbin/sqlite3;
 set_perm_recursive 0 0 0755 0755 /data/UKM;
 set_perm_recursive 0 0 0755 0755 /system/xbin/uci;
 set_perm_recursive 0 0 0755 0755 /system/xbin/busybox;
