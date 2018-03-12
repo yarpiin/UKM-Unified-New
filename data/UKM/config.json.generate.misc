@@ -40,6 +40,139 @@ cat << CTAG
 						}},'
 				fi
 			fi`
+			`if [ -f "/sys/kernel/cpufreq_hardlimit/scaling_max_freq_screen_on" ]; then
+				$BB echo '{ SPane:{
+						title:"CPU freq hard limit driver by Yank555-lu"
+					}},
+					{ SSpacer:{
+						height: 1
+					}},
+					{ SLiveLabel:{
+						refresh:0,
+						style:italic,
+						action:"live HardLimit"
+					}},'
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/scaling_min_freq_screen_on" ]; then
+					    $BB echo '{ SSeekBar:{
+						    title:"Min frequency screen on",
+                            description:"Set or show the real hard CPU min frequency limit when screen is on.",
+						    action:"generic /sys/kernel/cpufreq_hardlimit/scaling_min_freq_screen_on",
+						    values:{'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo '}
+					    }},'
+				    fi
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/scaling_max_freq_screen_on" ]; then
+					    $BB echo '{ SSeekBar:{
+						    title:"Max frequency screen on",
+                            description:"Set or show the real hard CPU max frequency limit when screen is on.",
+						    action:"generic /sys/kernel/cpufreq_hardlimit/scaling_max_freq_screen_on",
+						    values:{'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo '}
+					    }},'
+				    fi
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/scaling_min_freq_screen_off" ]; then
+					    $BB echo '{ SSeekBar:{
+						    title:"Min frequency screen off",
+                            description:"Set or show the real hard CPU min frequency limit when screen is off.",
+						    action:"generic /sys/kernel/cpufreq_hardlimit/scaling_min_freq_screen_off",
+						    values:{'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo '}
+					    }},'
+				    fi
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/scaling_max_freq_screen_off" ]; then
+					    $BB echo '{ SSeekBar:{
+						    title:"Max frequency screen off",
+                            description:"Set or show the real hard CPU max frequency limit when screen is off.",
+						    action:"generic /sys/kernel/cpufreq_hardlimit/scaling_max_freq_screen_off",
+						    values:{'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo '}
+					    }},'
+				    fi
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/wakeup_kick_freq" ]; then
+					    $BB echo '{ SSeekBar:{
+						    title:"Wakeup kick frequency",
+                            description:"Set or show the wakeup kick frequency (scaling_min for delay time).",
+						    action:"generic /sys/kernel/cpufreq_hardlimit/wakeup_kick_freq",
+						    values:{'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo '}
+					    }},'
+				    fi
+					if [ -f "/sys/kernel/cpufreq_hardlimit/wakeup_kick_delay" ]; then
+					KICK=\`$BB cat /sys/kernel/cpufreq_hardlimit/wakeup_kick_delay\`
+						$BB echo '{ SSeekBar:{
+							title:"Kick delay",
+							description:"Set or show the wakeup kick duration (in ms).",
+							unit:" ms",
+							min:0,
+							max:5000,
+							step:10,
+							default:'$KICK',
+							action:"generic /sys/kernel/cpufreq_hardlimit/wakeup_kick_delay"
+						}},'
+					fi
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/touchboost_lo_freq" ]; then
+					    $BB echo '{ SSeekBar:{
+						    title:"Touchboost lo frequency",
+                            description:"Set or show touchboost low frequency.",
+						    action:"generic /sys/kernel/cpufreq_hardlimit/touchboost_lo_freq",
+						    values:{'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo '}
+					    }},'
+				    fi
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/touchboost_hi_freq" ]; then
+					    $BB echo '{ SSeekBar:{
+						    title:"Touchboost hi frequency",
+                            description:"Set or show touchboost hi frequency.",
+						    action:"generic /sys/kernel/cpufreq_hardlimit/touchboost_hi_freq",
+						    values:{'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo '}
+					    }},'
+				    fi
+					if [ -f "/sys/kernel/cpufreq_hardlimit/touchboost_delay" ]; then
+					TBST=\`$BB cat /sys/kernel/cpufreq_hardlimit/touchboost_delay\`
+						$BB echo '{ SSeekBar:{
+							title:"Touchboost delay",
+							description:"Set or show touchboost delay (0 = disabled, up to 10000ms).",
+							unit:" ms",
+							min:0,
+							max:10000,
+							step:10,
+							default:'$TBST',
+							action:"generic /sys/kernel/cpufreq_hardlimit/touchboost_delay"
+						}},'
+					fi
+					if [ -f "/sys/kernel/cpufreq_hardlimit/touchboost_eventcount" ]; then
+					TBSE=\`$BB cat /sys/kernel/cpufreq_hardlimit/touchboost_eventcount\`
+						$BB echo '{ SSeekBar:{
+							title:"Touchboost event counter",
+							description:"Set or show touchboost eventcount necessary to go into high frequency (1-10).",
+							min:0,
+							max:10,
+							step:1,
+							default:'$TBSE',
+							action:"generic /sys/kernel/cpufreq_hardlimit/touchboost_eventcount"
+						}},'
+					fi
+				    if [ -f "/sys/kernel/cpufreq_hardlimit/userspace_dvfs_lock" ]; then
+				    BTC=\`$BB cat /sys/kernel/cpufreq_hardlimit/userspace_dvfs_lock\`
+					    $BB echo '{ SOptionList:{
+						    title:"Hardlimit Control",
+						    description:"Allow user to control driver behavior.",
+						    default:'$BTC',
+						    action:"generic /sys/kernel/cpufreq_hardlimit/userspace_dvfs_lock",
+						    values:{
+							    0:"Allow changes to scaling min/max", 1:"Ignore", 2:"Refuse",
+						    }
+					    }},'
+				    fi
+			fi`
 			`if [ -f "/sys/module/state_notifier/parameters/enabled" ] || [ -f "/sys/module/state_notifier/parameters/debug_mask" ]; then
 				$BB echo '{ SPane:{
 						title:"State Notifier"

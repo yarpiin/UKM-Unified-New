@@ -110,4 +110,7 @@ case $1 in
 	;;
 	Advanced)
 		$BB echo `sh $DEVICE LiveAdvanced`;
+	;;
+	HardLimit)
+		$BB echo `sh $DEVICE LiveHardLimit`;
 esac;

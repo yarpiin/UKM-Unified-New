@@ -95,8 +95,14 @@ case "$1" in
 
 		$BB echo $MFIT;
 	;;
+	DirCPU0LimFrequency)
+		$BB echo "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq";
+	;;
+	DirCPU1LimFrequency)
+		$BB echo "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq";
+	;;
 	DirCPUMinFrequency)
-		$BB echo "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq";
+		$BB echo "/sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq";
 	;;
 	DirCPU1MinFrequency)
 		$BB echo "/sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq";
@@ -885,5 +891,8 @@ case "$1" in
 	;;
 	LiveAdvanced)
 			$BB echo "Advanced Settings"
+	;;
+	LiveHardLimit)
+			$BB echo "CPU Hardlimit Driver"
 	;;
 esac;
