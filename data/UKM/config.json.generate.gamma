@@ -555,6 +555,19 @@ cat << CTAG
 							    action:"generic /sys/module/mdss_fb/parameters/backlight_max"
 						  }},'
 				fi
+				if [ -f "/sys/devices/virtual/graphics/fb0/mdss_fb/leds/lcd-backlight/max_brightness" ]; then
+				BMAX=\`$BB cat /sys/devices/virtual/graphics/fb0/mdss_fb/leds/lcd-backlight/max_brightness\`
+				    $BB echo '{ SSeekBar:{
+                                title:"Backlight Brightnes Control",
+							    description:"Allows to set maximum display backlight level",
+							    unit:" %",
+							    default:'$BMAX',
+							    action:"generic /sys/devices/virtual/graphics/fb0/mdss_fb/leds/lcd-backlight/max_brightness",
+						        values:{
+							        25:"10 %",50:"20 %",75:"30 %",100:"40 %",125:"50 %",150:"60 %",175:"70 %",200:"80 %",225:"90 %",255:"100 %",
+						        }
+						  }},'
+				fi
 				if [ -f "/sys/devices/virtual/graphics/fb0/color_enhance" ]; then
 				CE=\`$BB cat /sys/devices/virtual/graphics/fb0/color_enhance\`;
 					$BB echo '{ SCheckBox:{
@@ -618,6 +631,18 @@ cat << CTAG
 						label:"Enable",
 						default:'$FSYNC',
 						action:"generic /sys/devices/virtual/graphics/fb0/SRGB"
+					}},'
+			fi`
+            `if [ -f "/sys/devices/virtual/graphics/fb0/srgb" ]; then
+			FSYNC=\`$BB cat /sys/devices/virtual/graphics/fb0/srgb\`
+				$BB echo '{ SPane:{
+					title:"SRGB Mode"
+				}},
+					{ SCheckBox:{
+						description:"SRGB Display Calibration",
+						label:"Enable",
+						default:'$FSYNC',
+						action:"generic /sys/devices/virtual/graphics/fb0/srgb"
 					}},'
 			fi`
             `if [ -f "/sys/devices/virtual/graphics/fb0/Adobe_RGB" ]; then
