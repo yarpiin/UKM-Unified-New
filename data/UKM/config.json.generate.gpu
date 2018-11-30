@@ -30,9 +30,9 @@ cat << CTAG
 					style:italic,
 					action:"live GPUFrequency"
 				}},
-				{ SPane:{
-					title:"GPU Frequency Scaling",
-				}},
+				{ SSpacer:{
+						height: 1
+				    	}},
 				`if [ -f "\`sh $DEVICE DirGPUMinFrequency\`" ]; then
 				GPUMIN=\`sh $DEVICE DirGPUMinFrequency\`
 					$BB echo '{ SSeekBar:{
@@ -259,6 +259,64 @@ cat << CTAG
 							height: 1
 						}},'
 				fi`
+				{ SSpacer:{
+						height: 1
+				    	}},
+				`if [ -f "/sys/devices/platform/17500000.mali/power_policy" ]; then
+			    MPOL=\`$BB echo $($UKM/actions/bracket-option /sys/devices/platform/17500000.mali/power_policy)\`
+					$BB echo '{ SOptionList:{
+						title:"Mali Power Policy",
+						description:"Power policy makes scaling decisions based on specific algorithm.",
+						default:'$MPOL',
+						action:"bracket-option /sys/devices/platform/17500000.mali/power_policy",
+						values:['
+							for POL in \`$BB cat /sys/devices/platform/17500000.mali/power_policy | $BB sed -e "s/\]//;s/\[//"\`; do
+								$BB echo "\"$POL\",";
+							done;
+						$BB echo ']
+					}},'
+			    fi`
+				{ SSpacer:{
+						height: 1
+				    	}},
+				`if [ -f "/sys/devices/platform/17500000.mali/highspeed_clock" ]; then
+			    INB=\`$BB cat /sys/devices/platform/17500000.mali/highspeed_clock\`
+					$BB echo '{ SSeekBar:{
+						    title:"GPU Highspeed load Frequency",
+						    description:"Set minimum frequency to be used under heavy load",
+							default:'$INB',
+							action:"generic /sys/devices/platform/17500000.mali/highspeed_clock",
+						    values:{
+							    '\`sh $DEVICE GPUFrequencyList\`'
+						    }
+						}},'
+			    fi`
+			    `if [ -f "/sys/devices/platform/17500000.mali/highspeed_load" ]; then
+			    GPULTH=\`$BB cat /sys/devices/platform/17500000.mali/highspeed_load\`;
+					    $BB echo '{ SSeekBar:{
+						    title:"GPU Highspeed load threshold",
+						    description:"Set the minimum threshold for the GPU to raise frequency.",
+					        unit:"%",
+					        step:1,
+					        min:0,
+					        max:100,
+					        default:'$GPULTH',
+					        action:"generic /sys/devices/platform/17500000.mali/highspeed_load"
+				        }},'
+			    fi`
+			    `if [ -f "/sys/devices/platform/17500000.mali/highspeed_delay" ]; then
+			    GPUDEL=\`$BB cat /sys/devices/platform/17500000.mali/highspeed_delay\`;
+					    $BB echo '{ SSeekBar:{
+						    title:"GPU Highspeed delay",
+						    description:"Set the delay time for the GPU to raise frequency.",
+					        unit:"ms",
+					        step:1,
+					        min:0,
+					        max:5,
+					        default:'$GPUDEL',
+					        action:"generic /sys/devices/platform/17500000.mali/highspeed_delay"
+				        }},'
+			    fi`
 		]
 }
 CTAG
