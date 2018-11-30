@@ -568,16 +568,16 @@ cat << CTAG
 					}},'
 				fi
 			fi`
-			`if [ -f "/sys/class/sec/led/led_fade" ]; then
-			LDF=\`bool /sys/class/sec/led/led_fade"\`;
+            `if [ -f "/sys/class/sec/led/led_fade" ]; then
+			LDF=\`$BB cat /sys/class/sec/led/led_fade\`
 				$BB echo '{ SPane:{
-					title:"Led Fade Driver",
+					title:"Led Fade Driver"
 				}},
 					{ SCheckBox:{
-						label:"Enable",
 						description:"Enable/Disable led fade driver from Ktoonsez and @Noxxxious.",
+						label:"Enable",
 						default:'$LDF',
-						action:"boolean /sys/class/sec/led/led_fade"
+						action:"generic /sys/class/sec/led/led_fade"
 					}},'
 			fi`
 			`if [ -f "/sys/class/sec/led/led_fade_time_down" ]; then
