@@ -568,6 +568,40 @@ cat << CTAG
 					}},'
 				fi
 			fi`
+			`if [ -f "/sys/class/sec/led/led_fade" ]; then
+			LDF=\`bool /sys/class/sec/led/led_fade"\`;
+				$BB echo '{ SPane:{
+					title:"Led Fade Driver",
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable/Disable led fade driver from Ktoonsez and @Noxxxious.",
+						default:'$LDF',
+						action:"boolean /sys/class/sec/led/led_fade"
+					}},'
+			fi`
+			`if [ -f "/sys/class/sec/led/led_fade_time_down" ]; then
+				LFDT=\`$BB cat /sys/class/sec/led/led_fade_time_down\`;
+				$BB echo '{ SSeekBar:{
+						title:"Led fade down time",
+						min:1,
+						max:1000,
+						step:1,
+						default:'$LFDT',
+						action:"generic /sys/class/sec/led/led_fade_time_down"
+					}},'
+			fi`
+			`if [ -f "/sys/class/sec/led/led_fade_time_up" ]; then
+				LFDT=\`$BB cat /sys/class/sec/led/led_fade_time_up\`;
+				$BB echo '{ SSeekBar:{
+						title:"Led fade up time",
+						min:1,
+						max:1000,
+						step:1,
+						default:'$LFDT',
+						action:"generic /sys/class/sec/led/led_fade_time_up"
+					}},'
+			fi`
 		]
 }
 CTAG
