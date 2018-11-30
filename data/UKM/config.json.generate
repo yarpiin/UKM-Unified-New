@@ -32,7 +32,7 @@ cat << CTAG
 				. $UKM/config.json.generate.cpuvolt
 				$BB echo ','
 			fi
-		    	if [ -d "/sys/module/clock_cpu_8996" ]; then
+		    	if [ -d "/sys/module/clock_cpu_8996" -o -d "/sys/devices/platform/17500000.mali" ]; then
 		        	. $UKM/config.json.generate.kryo.io
 		    	else
 		        	. $UKM/config.json.generate.io
