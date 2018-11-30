@@ -295,6 +295,7 @@ case "$1" in
 		GPUFREQ3=/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_list;
 		GPUFREQ4=/sys/kernel/tegra_gpu/gpu_available_rates;
 		GPUFREQ5=/sys/devices/platform/dfrgx/devfreq/dfrgx/available_frequencies;
+		GPUFREQ6=/sys/kernel/gpu/gpu_freq_table;
 		
 		if [ -f "$GPUFREQ" ]; then
 			for GPUFREQ in `$BB cat /sys/devices/platform/kgsl-2d0.0/kgsl/kgsl-2d0/gpu_available_frequencies | $BB tr ' ' '\n' | $BB sort -u` ; do
@@ -326,9 +327,15 @@ case "$1" in
 				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
 			done;
 			
-		else
-			for GPUFREQ in `$BB cat /sys/devices/platform/dfrgx/devfreq/dfrgx/available_frequencies | $BB tr ' ' '\n' | $BB sort -u` ; do
+		elif [ -f "$GPUFREQ5" ]; then
+			for GPUFREQ in `$BB cat /sys/kernel/tegra_gpu/gpu_available_rates | $BB tr ' ' '\n' | $BB sort -u` ; do
 			LABEL=$((GPUFREQ / 1000000));
+				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
+			done;
+						
+		else
+			for GPUFREQ in `$BB cat /sys/kernel/gpu/gpu_freq_table | $BB tr ' ' '\n' | $BB sort -u` ; do
+			LABEL=$((GPUFREQ / 1));
 				$BB echo "$GPUFREQ:\"${LABEL} MHz\", ";
 			done;
 		fi;
@@ -341,6 +348,7 @@ case "$1" in
 		GPUPW3=/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency;
 		GPUPW4=/sys/kernel/tegra_gpu/gpu_floor_rate;
 		GPUPW5=/sys/devices/platform/dfrgx/devfreq/dfrgx/min_freq;
+		GPUPW6=/sys/kernel/gpu/gpu_min_clock;
 	
 		if [ -f "$GPUPW" ]; then
 			$BB echo "$GPUPW";
@@ -357,8 +365,11 @@ case "$1" in
 		elif [ -f "$GPUPW4" ]; then
 			$BB echo "$GPUPW4";
 		
-        else
+		elif [ -f "$GPUPW5" ]; then
 			$BB echo "$GPUPW5";
+
+        else
+			$BB echo "$GPUPW6";
 		fi;
 	;;
 	DirGPUMaxFrequency)
@@ -369,6 +380,7 @@ case "$1" in
 		GPUMAXFREQ3=/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_limit;
 		GPUMAXFREQ4=/sys/kernel/tegra_gpu/gpu_cap_rate;
 		GPUMAXFREQ5=/sys/devices/platform/dfrgx/devfreq/dfrgx/max_freq;
+		GPUMAXFREQ6=/sys/kernel/gpu/gpu_max_clock;
 			
 		if [ -f "$GPUMAXFREQ" ]; then
 			$BB echo "$GPUMAXFREQ";
@@ -385,8 +397,11 @@ case "$1" in
 		elif [ -f "$GPUMAXFREQ4" ]; then
 			$BB echo "$GPUMAXFREQ4";
 			
+		elif [ -f "$GPUMAXFREQ5" ]; then
+			$BB echo "$GPUMAXFREQ5";			
 		else
-			$BB echo "$GPUMAXFREQ5";
+
+			$BB echo "$GPUMAXFREQ6";
 		fi;
 	;;
 	SetGPUMinPwrLevel)
@@ -413,8 +428,19 @@ case "$1" in
 		elif [ -f "$GPUGOV2" ]; then
 			$BB echo "`$BB cat /sys/class/kgsl/kgsl-3d0/devfreq/governor`"
 			
-		else
+		elif [ -f "$GPUGOV3" ]; then
 			$BB echo "`$BB cat /sys/devices/platform/dfrgx/devfreq/dfrgx/governor`"
+						
+		else
+			$BB echo "`$BB cat /sys/kernel/gpu/gpu_governor`"
+		fi;
+	;;
+	DefaultGPUPolicyGovernor)
+		
+		GPUGOV=/sys/devices/platform/17500000.mali/power_policy;
+			
+		if [ -f "$GPUGOV" ]; then
+			$BB echo "`$BB cat /sys/devices/platform/17500000.mali/power_policy`"
 		fi;
 	;;
 	DirGPUGovernor)
@@ -423,6 +449,7 @@ case "$1" in
 		GPUGOV1=/sys/class/kgsl/kgsl-3d0/pwrscale/trustzone/governor;
 		GPUGOV2=/sys/class/kgsl/kgsl-3d0/devfreq/governor;
 		GPUGOV3=/sys/devices/platform/dfrgx/devfreq/dfrgx/governor;
+		GPUGOV4=/sys/kernel/gpu/gpu_governor;
 		
 		if [ -f "$GPUGOV" ]; then
 			$BB echo "$GPUGOV";
@@ -433,15 +460,41 @@ case "$1" in
 		elif [ -f "$GPUGOV2" ]; then
 			$BB echo "$GPUGOV2";
 		
-		else
+		elif [ -f "$GPUGOV3" ]; then
 			$BB echo "$GPUGOV3";
+				
+		else
+			$BB echo "$GPUGOV4";
 		fi;
 	;;
 	GPUGovernorList)
-		
-			$BB echo "msm-adreno-tz","performance", "powersave", "ondemand", "userspace", "cpufreq";
 
-	;;
+		
+		GPUGOV=/sys/devices/platform/kgsl-2d0.0/kgsl/kgsl-2d0/pwrscale/trustzone/governor;
+		GPUGOV1=/sys/class/kgsl/kgsl-3d0/pwrscale/trustzone/governor;
+		GPUGOV2=/sys/class/kgsl/kgsl-3d0/devfreq/governor;
+		GPUGOV3=/sys/devices/platform/dfrgx/devfreq/dfrgx/governor;
+		GPUGOV4=/sys/kernel/gpu/gpu_governor;
+		
+		if [ -f "$GPUGOV" ]; then
+			$BB echo "msm-adreno-tz","performance", "powersave", "ondemand", "userspace", "cpufreq";
+			
+		elif [ -f "$GPUGOV1" ]; then
+			$BB echo "msm-adreno-tz","performance", "powersave", "ondemand", "userspace", "cpufreq";
+		
+		elif [ -f "$GPUGOV2" ]; then
+			$BB echo "msm-adreno-tz","performance", "powersave", "ondemand", "userspace", "cpufreq";
+		
+		elif [ -f "$GPUGOV3" ]; then
+			$BB echo "msm-adreno-tz","performance", "powersave", "ondemand", "userspace", "cpufreq";
+		
+		elif [ -f "$GPUGOV4" ]; then
+			$BB echo "Default","Interactive", "Static", "Booster";
+								
+		else
+			$BB echo "msm-adreno-tz","performance", "powersave", "ondemand", "userspace", "cpufreq",;
+		fi;
+	;;		
 	SetGPUGovernor)
 		if [[ ! -z $3 ]]; then
 			$BB echo $3 > $2 2> /dev/null;
@@ -572,6 +625,7 @@ case "$1" in
 		GPUCURFREQ3=/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency;
 		GPUCURFREQ4=/sys/kernel/tegra_gpu/gpu_rate;
 		GPUCURFREQ5=/sys/devices/platform/dfrgx/devfreq/dfrgx/cur_freq;
+		GPUCURFREQ6=/sys/kernel/gpu/gpu_clock;
 		
 		if [ -f "$GPUCURFREQ" ]; then
 			GPUFREQ="$((`$BB cat $GPUCURFREQ` / 1000000)) MHz";
@@ -593,8 +647,12 @@ case "$1" in
 			GPUFREQ="$((`$BB cat $GPUCURFREQ4` / 1000000)) MHz";
 			$BB echo "$GPUFREQ";
 		
+		elif [ -f "$GPUCURFREQ5" ]; then
+			GPUFREQ="$((`$BB cat $GPUCURFREQ4` / 1000000)) MHz";
+			$BB echo "$GPUFREQ";
+		
 		else
-			GPUFREQ="$((`$BB cat $GPUCURFREQ5` / 1000000)) MHz";
+			GPUFREQ="$((`$BB cat $GPUCURFREQ6` / 1)) MHz";
 			$BB echo "$GPUFREQ";
 		fi;
 	;;
@@ -759,10 +817,17 @@ case "$1" in
 	LiveCPUTemperature)
 	
 		CPU_C=/sys/class/thermal/thermal_zone7/temp;
+		CPU_S=/sys/class/thermal/thermal_zone3/temp;
 		CPUK=/sys/module/clock_cpu_8996;
 
 		if [ -d "$CPUK" ]; then
 			CPUT="$((`$BB cat $CPU_C` / 10)) °C";
+			
+			$BB echo "$CPUT"; 
+
+        
+		elif [ -f "$CPU_S" ]; then
+			CPUT="$((`$BB cat $CPU_S` / 1000)) °C";
 			
 			$BB echo "$CPUT"; 
 
@@ -840,6 +905,9 @@ case "$1" in
 	;;
 	LiveMsmPerformance)
 			$BB echo "MSM Performance Driver"
+	;;
+	LivePowerSuspend)
+			$BB echo "Power Suspend Driver"
 	;;
 	LiveHima)
 			$BB echo "Hima Hotplug Driver"
