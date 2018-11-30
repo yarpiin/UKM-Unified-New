@@ -657,6 +657,42 @@ cat << CTAG
 						action:"generic /sys/devices/virtual/graphics/fb0/Adobe_RGB"
 					}},'
 			fi`
+            `if [ -f "/sys/class/mdnie/mdnie/bypass" ]; then
+			RGBS=\`$BB cat /sys/class/mdnie/mdnie/bypass\`
+				$BB echo '{ SPane:{
+					title:"Disable Samsung RGB Mode"
+				}},
+					{ SCheckBox:{
+						description:"Disable Samsung RGB Display Calibration. Need for custom RGB control",
+						label:"Enable",
+						default:'$RGBS',
+						action:"generic /sys/class/mdnie/mdnie/bypass"
+					}},'
+			fi`
+			`if [ -f "/sys/class/mdnie/mdnie/rgb" ]; then
+			RGBC=\`$BB cat /sys/class/mdnie/mdnie/rgb\`;
+				$BB echo '{ SPane:{
+					title:"RGB Color Control",
+				}},
+					{ SGeneric:{
+						title:"MDNIE",
+						description:"Controls R/G/B Multipliers",
+						default:'$RGBC',
+						action:"gamma /sys/class/mdnie/mdnie/rgb",
+					}},'
+			fi`
+            `if [ -f "/sys/class/mdnie/mdnie/hdr" ]; then
+			FSYNC=\`$BB cat /sys/class/mdnie/mdnie/hdr\`
+				$BB echo '{ SPane:{
+					title:"Panel HDR Mode"
+				}},
+					{ SCheckBox:{
+						description:"Improves the range of color and contrast in a digital image.",
+						label:"Enable",
+						default:'$FSYNC',
+						action:"generic /sys/class/mdnie/mdnie/bypass"
+					}},'
+			fi`
 		]
 }
 CTAG
