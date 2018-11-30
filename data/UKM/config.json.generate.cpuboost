@@ -326,6 +326,49 @@ cat << CTAG
 						height: 1
 					}},'
 				fi`
+			    	`if [ -d "/sys/module/cpu_input_boost" ]; then
+				    $BB echo '{ SPane:{
+					    title:"Sultanxda Input Boost"
+				    }},'
+				    if [ -f "/sys/module/cpu_input_boost/parameters/input_boost_freq" ]; then
+					    INB=\`$BB cat /sys/module/cpu_input_boost/parameters/input_boost_freq\`
+						$BB echo '{ SSeekBar:{
+							description:"Input Boost frequency little cluster",
+							default:'$INB',
+							action:"generic /sys/module/cpu_input_boost/parameters/input_boost_freq",
+						    values:{0:"Disabled",'
+							    sh $DEVICE CPUFrequencyList
+						    $BB echo }'
+						}},'
+					fi
+				    if [ -f "/sys/module/cpu_input_boost/parameters/input_boost_freq_hp" ]; then
+					    INB=\`$BB cat /sys/module/cpu_input_boost/parameters/input_boost_freq_hp\`
+						$BB echo '{ SSeekBar:{
+							description:"Input Boost frequency",
+							default:'$INB',
+							action:"generic /sys/module/cpu_input_boost/parameters/input_boost_freq_hp",
+						    values:{0:"Disabled",'
+							    sh $DEVICE CPU2FrequencyList
+						    $BB echo }'
+						}},'
+					fi
+				    if [ -f "/sys/module/cpu_input_boost/parameters/input_boost_duration" ]; then
+					INB=\`$BB cat /sys/module/cpu_input_boost/parameters/input_boost_duration\`
+						$BB echo '{ SSeekBar:{
+							title:"Input Boost Duration",
+						    	description:"Sets input boost duration in ms.",
+                            	unit:"ms",
+						    	min:0,
+						    	max:5000,
+						    	step:10,
+						    	default:'$INB',
+						    	action:"generic /sys/module/cpu_input_boost/parameters/input_boost_duration",
+					    }},'
+					fi
+					$BB echo '{ SSpacer:{
+						height: 1
+					}},'
+				fi`
 				`if [ -d "/sys/kernel/fp_boost" ]; then
 				    $BB echo '{ SPane:{
 					    title:"Fingerprint Boost"
@@ -336,7 +379,7 @@ cat << CTAG
 							label:"Enable",
 							description:"Fingerprint Boost driver from Frap129",
 							default:'$INB',
-							action:"generic /sys/kernel/cpu_input_boost/enabled"
+							action:"generic /sys/kernel/fp_boost/enabled"
 						}},'
 					fi
 				fi`
